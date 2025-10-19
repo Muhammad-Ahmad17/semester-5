@@ -1,0 +1,384 @@
+╔═════════════════════════════════════════════════════════════════════════════╗
+║        PRACTICE PROBLEMS & STEP-BY-STEP SOLUTIONS                           ║
+║              Study this for QUIZ preparation                                ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 1: Bisection Method
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Find the root of f(x) = x³ - 2x - 5 in the interval [2, 3]
+using Bisection Method with tolerance 1e-6
+
+SOLUTION STEPS:
+
+Step 1: Verify interval brackets root
+    f(2) = 8 - 4 - 5 = -1  (negative)
+    f(3) = 27 - 6 - 5 = 16  (positive)
+    f(2) · f(3) = -1 · 16 = -16 < 0  ✓ (Root exists in [2,3])
+
+Step 2: MATLAB Code (use template)
+    clc; clear; close all;
+    f = @(x) (x^3 - 2*x - 5);
+    a = 2;
+    b = 3;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-15s %-15s %-15s\n', 'Iter', 'Xm', 'f(Xm)', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        Xm = (a + b) / 2;
+        
+        if f(a) * f(Xm) < 0
+            b = Xm;
+        else
+            a = Xm;
+        end
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((Xm - Xm_old) / Xm) * 100;
+        end
+        
+        fprintf('%-5d %-15.8f %-15.8f %-15.6f\n', i, Xm, f(Xm), err);
+        Xm_old = Xm;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', Xm);
+
+Expected Root: ≈ 2.094551
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 2: Newton-Raphson Method
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Find the root of f(x) = eˣ - 5x near x₀ = 1 
+using Newton-Raphson with tolerance 1e-6
+
+SOLUTION STEPS:
+
+Step 1: Identify function and derivative
+    f(x) = eˣ - 5x
+    f'(x) = eˣ - 5
+
+Step 2: MATLAB Code
+    clc; clear; close all;
+    f = @(x) (exp(x) - 5*x);
+    df = @(x) (exp(x) - 5);
+    
+    x0 = 1;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-15s %-15s %-15s\n', 'Iter', 'x', 'f(x)', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        f0 = f(x0);
+        f1 = df(x0);
+        x_new = x0 - f0 / f1;
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((x_new - x0) / x_new) * 100;
+        end
+        
+        fprintf('%-5d %-15.8f %-15.8f %-15.6f\n', i, x_new, f(x_new), err);
+        x0 = x_new;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', x_new);
+
+Expected Root: ≈ 0.374351
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 3: Secant Method
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Find the root of f(x) = cos(x) using Secant Method
+with x₀ = 0 and x₁ = 1, tolerance 1e-6
+
+SOLUTION STEPS:
+
+Step 1: Note NO derivative needed!
+    f(x) = cos(x)
+
+Step 2: MATLAB Code
+    clc; clear; close all;
+    f = @(x) cos(x);
+    
+    x0 = 0;
+    x1 = 1;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-15s %-15s\n', 'Iter', 'x', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        x2 = x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0));
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((x2 - x1) / x2) * 100;
+        end
+        
+        fprintf('%-5d %-15.8f %-15.6f\n', i, x2, err);
+        x0 = x1;
+        x1 = x2;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', x2);
+
+Expected Root: ≈ 1.570796 (= π/2)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 4: Regula Falsi
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Find the root of f(x) = x² - 12 in interval [3, 4]
+using Regula Falsi with tolerance 1e-6
+
+SOLUTION STEPS:
+
+Step 1: Verify bracket
+    f(3) = 9 - 12 = -3  (negative)
+    f(4) = 16 - 12 = 4  (positive)
+    f(3) · f(4) = -12 < 0  ✓ Root exists
+
+Step 2: MATLAB Code
+    clc; clear; close all;
+    f = @(x) (x^2 - 12);
+    
+    a = 3;
+    b = 4;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-10s %-10s %-15s %-15s\n', 'Iter', 'a', 'b', 'x_new', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        x_new = (a*f(b) - b*f(a)) / (f(b) - f(a));
+        
+        if f(a) * f(x_new) < 0
+            b = x_new;
+        else
+            a = x_new;
+        end
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((x_new - x_old) / x_new) * 100;
+        end
+        
+        fprintf('%-5d %-10.6f %-10.6f %-15.8f %-15.6f\n', i, a, b, x_new, err);
+        x_old = x_new;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', x_new);
+
+Expected Root: ≈ 3.464102 (= 2√3)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 5: Fixed Point Iteration
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Solve 2x - log(x) - 7 = 0
+Rearrange to fixed point form and find root with x₀ = 5
+
+SOLUTION STEPS:
+
+Step 1: REARRANGE the equation
+    Original: 2x - log(x) - 7 = 0
+    Rearrange: 2x = log(x) + 7
+               x = (log(x) + 7) / 2
+    
+    So: g(x) = (log(x) + 7) / 2
+
+Step 2: Check convergence
+    dg/dx = 1/(2x)
+    At x ≈ 4: |dg/dx| ≈ 0.125 < 1  ✓ Converges
+
+Step 3: MATLAB Code
+    clc; clear; close all;
+    g = @(x) (log(x) + 7) / 2;
+    
+    x0 = 5;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-15s %-15s\n', 'Iter', 'x', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        x_new = g(x0);
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((x_new - x0) / x_new) * 100;
+        end
+        
+        fprintf('%-5d %-15.8f %-15.6f\n', i, x_new, err);
+        x0 = x_new;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', x_new);
+
+Expected Root: ≈ 4.039165
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 6: Modified Newton-Raphson
+═══════════════════════════════════════════════════════════════════════════════
+
+QUESTION:
+Solve x³ - 5x² + 7x - 3 = 0 which has a multiple root at x = 1
+Using Modified Newton-Raphson with x₀ = 0.5
+
+SOLUTION STEPS:
+
+Step 1: Get derivatives
+    f(x) = x³ - 5x² + 7x - 3
+    f'(x) = 3x² - 10x + 7
+    f''(x) = 6x - 10
+    
+    Check: At x = 1:
+    f(1) = 1 - 5 + 7 - 3 = 0  ✓
+    f'(1) = 3 - 10 + 7 = 0  ✓ (Multiple root!)
+
+Step 2: MATLAB Code
+    clc; clear; close all;
+    f = @(x) (x^3 - 5*x^2 + 7*x - 3);
+    df = @(x) (3*x^2 - 10*x + 7);
+    d2f = @(x) (6*x - 10);
+    
+    x0 = 0.5;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+    
+    fprintf('%-5s %-15s %-15s %-15s\n', 'Iter', 'x', 'f(x)', 'Error(%)');
+    
+    while (err > tol) && (i < maxIter)
+        i = i + 1;
+        f0 = f(x0);
+        f1 = df(x0);
+        f2 = d2f(x0);
+        x_new = x0 - (f0 * f1) / (f1^2 - f0 * f2);
+        
+        if i == 1
+            err = inf;
+        else
+            err = abs((x_new - x0) / x_new) * 100;
+        end
+        
+        fprintf('%-5d %-15.8f %-15.8f %-15.6f\n', i, x_new, f(x_new), err);
+        x0 = x_new;
+    end
+    
+    fprintf('\nRoot ≈ %.8f\n', x_new);
+
+Expected Root: = 1.0 (Multiple root)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+MEMORY TRICKS FOR THE FORMULA (Write on paper during quiz!)
+═══════════════════════════════════════════════════════════════════════════════
+
+Bisection:          Xm = (a + b) / 2
+                    → "MIDDLE of interval"
+
+Newton-Raphson:     x_new = x0 - f(x0)/f'(x0)
+                    → "Tangent line intercept"
+
+Secant:             x2 = x1 - f(x1)·(x1-x0)/(f(x1)-f(x0))
+                    → "Secant line intercept"
+
+Regula Falsi:       x_new = (a·f(b) - b·f(a))/(f(b) - f(a))
+                    → "Weighted average by function values"
+
+Fixed Point:        x_new = g(x0)
+                    → "Apply rearranged function"
+
+Modified NR:        x_new = x0 - (f·f')/([f']² - f·f'')
+                    → "Newton with double root correction"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+QUICK TEST: Can you identify the method?
+═══════════════════════════════════════════════════════════════════════════════
+
+1) Uses interval [a,b] with f(a)·f(b) < 0?
+   ANSWER: Bisection or Regula Falsi
+
+2) Needs f'(x)?
+   ANSWER: Newton-Raphson or Modified NR
+
+3) Needs TWO initial guesses?
+   ANSWER: Secant Method
+
+4) Uses g(x) = rearranged form?
+   ANSWER: Fixed Point Iteration
+
+5) Uses f''(x)?
+   ANSWER: Modified Newton-Raphson
+
+═══════════════════════════════════════════════════════════════════════════════
+COMMON QUIZ MISTAKES & HOW TO AVOID
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ Mistake: Forget to initialize i and err before loop
+✓ FIX: Always write: i = 0; err = inf;
+
+❌ Mistake: Write fprintf INSIDE the loop only
+✓ FIX: Write header fprintf BEFORE loop, then printf in loop
+
+❌ Mistake: Wrong error formula
+✓ FIX: Use relative error: abs((new - old)/new) * 100
+
+❌ Mistake: Not updating variables correctly
+✓ FIX: At end of loop, update: x0 = x_new; OR x0 = x1; x1 = x2;
+
+❌ Mistake: Forget to check bracket condition
+✓ FIX: For Bisection/Regula: while f(a)*f(b) > 0, get new values
+
+❌ Mistake: Wrong derivative formula
+✓ FIX: Double-check your calculus! Use symbolic toolbox if unsure
+
+❌ Mistake: Stop at first iteration due to err = inf condition
+✓ FIX: Use: if i == 1, err = inf; else, calculate error
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Good luck with your quiz! 🍀
+Remember: FOLLOW THE TEMPLATE, only change the formula!
+
+═══════════════════════════════════════════════════════════════════════════════

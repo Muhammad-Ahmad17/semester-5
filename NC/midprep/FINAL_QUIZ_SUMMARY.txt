@@ -1,0 +1,363 @@
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                  QUIZ PREPARATION SUMMARY - FINAL CHECKLIST                 ║
+║                     Study Guide for Numerical Computing                     ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+QUIZ DATE: October 20, 2025
+TOPICS: Root-Finding Methods in MATLAB
+DURATION: [Ask your instructor]
+FORMAT: Write code on paper
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 STUDY MATERIALS PROVIDED (Use these!)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. MATLAB_NUMERICAL_METHODS_QUIZ_GUIDE.md
+   → Comprehensive guide with universal template
+   → All 6 methods explained
+   → Quick reference table
+   → Common mistakes to avoid
+
+2. STANDARDIZED_METHODS_TEMPLATE.m
+   → Complete code for all 6 methods
+   → Copy-paste ready
+   → Follow exact same structure
+   → Only formulas differ
+
+3. QUICK_REFERENCE_CHEAT_SHEET.txt
+   → One-page reference for each method
+   → Formulas highlighted
+   → Key code templates
+   → When to use each method
+
+4. PRACTICE_PROBLEMS_SOLUTIONS.txt
+   → 6 complete practice problems
+   → Step-by-step solutions
+   → Memory tricks
+   → Common mistakes covered
+
+5. METHOD_COMPARISON_VISUAL.txt
+   → Visual comparison of all methods
+   → Advantages/disadvantages
+   → Decision tree for choosing method
+   → Convergence properties
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 THE GOLDEN RULE - USE THIS TEMPLATE FOR EVERY METHOD!
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─ STEP 1: Prepare ──────────────────────────────────────────────────────────┐
+│ clc; clear; close all;                                                     │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 2: Define Function(s) ──────────────────────────────────────────────┐
+│ f = @(x) [FUNCTION];                                                      │
+│ % df = @(x) [DERIVATIVE]; (if needed)                                     │
+│ % d2f = @(x) [2ND DERIVATIVE]; (if needed)                                │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 3: Get Input ───────────────────────────────────────────────────────┐
+│ % For bracket methods:                                                    │
+│ % a = input('Enter a: ');                                                 │
+│ % b = input('Enter b: ');                                                 │
+│ % For open methods:                                                       │
+│ % x0 = input('Enter x0: ');                                               │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 4: Validate (if bracket method) ────────────────────────────────────┐
+│ % while f(a)*f(b) > 0                                                     │
+│ %     [get new values]                                                    │
+│ % end                                                                     │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 5: Initialize Parameters ────────────────────────────────────────────┐
+│ tol = 1e-6;                                                                │
+│ maxIter = 50;                                                              │
+│ i = 0;                                                                     │
+│ err = inf;                                                                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 6: Print Header ────────────────────────────────────────────────────┐
+│ fprintf('%-5s %-15s %-15s %-15s\n', 'Iter', 'x', 'f(x)', 'Error(%)');     │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 7: Main Loop ───────────────────────────────────────────────────────┐
+│ while (err > tol) && (i < maxIter)                                        │
+│     i = i + 1;                                                            │
+│                                                                           │
+│     % *** METHOD-SPECIFIC FORMULA HERE ***                                │
+│     % This is what changes between methods!                               │
+│                                                                           │
+│     % Calculate error                                                     │
+│     if i == 1                                                             │
+│         err = inf;                                                        │
+│     else                                                                  │
+│         err = abs((new - old) / new) * 100;                               │
+│     end                                                                   │
+│                                                                           │
+│     fprintf('%-5d %-15.8f %-15.8f %-15.6f\n', i, x, f(x), err);           │
+│                                                                           │
+│     % Update variables for next iteration                                 │
+│     [UPDATE HERE - changes per method]                                    │
+│ end                                                                       │
+└───────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 8: Display Final Result ────────────────────────────────────────────┐
+│ fprintf('\nRoot ≈ %.8f\n', x_final);                                      │
+│ fprintf('Iterations: %d\n', i);                                           │
+│ fprintf('Final error: %.6e\n', err);                                      │
+└───────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+⚡ THE 6 FORMULAS - MEMORIZE THESE!
+═══════════════════════════════════════════════════════════════════════════════
+
+1️⃣  BISECTION
+    Xm = (a + b) / 2
+    if f(a)*f(Xm) < 0, b = Xm; else a = Xm; end
+
+2️⃣  NEWTON-RAPHSON
+    x_new = x0 - f(x0) / df(x0)
+
+3️⃣  SECANT
+    x2 = x1 - f(x1)*(x1 - x0)/(f(x1) - f(x0))
+
+4️⃣  REGULA FALSI
+    x_new = (a*f(b) - b*f(a)) / (f(b) - f(a))
+    if f(a)*f(x_new) < 0, b = x_new; else a = x_new; end
+
+5️⃣  FIXED POINT
+    x_new = g(x0)
+
+6️⃣  MODIFIED NEWTON-RAPHSON
+    x_new = x0 - (f(x0)*df(x0)) / (df(x0)^2 - f(x0)*d2f(x0))
+
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ PRE-QUIZ CHECKLIST (48 hours before exam)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Read MATLAB_NUMERICAL_METHODS_QUIZ_GUIDE.md (2 hours)
+□ Study QUICK_REFERENCE_CHEAT_SHEET.txt (1 hour)
+□ Work through PRACTICE_PROBLEMS_SOLUTIONS.txt (2 hours)
+□ Review METHOD_COMPARISON_VISUAL.txt (1 hour)
+□ Practice writing code for each method by hand (2 hours)
+□ Do practice problems on computer, verify output (2 hours)
+□ Create your own quick reference on index card (30 min)
+□ Review common mistakes section (30 min)
+□ Sleep well the night before! (8 hours)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+⏱️ DURING THE QUIZ - TIME MANAGEMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Read question carefully (1 min)
+   → Identify which method to use
+   → Identify what function is given
+   → Check if you need derivatives
+
+2. Identify inputs needed (1 min)
+   → f(x)?     ✓
+   → f'(x)?    Check method
+   → f''(x)?   For Modified NR only
+   → [a,b]?    For Bisection/Regula Falsi
+   → x0, x1?   Check method
+
+3. Write template (3 min)
+   → Exact same structure for all methods
+   → Don't skip any steps
+   → Write header for output
+
+4. Write your specific formula (2 min)
+   → Look up from your reference
+   → Write carefully
+   → Double-check brackets and operations
+
+5. Write update statements (1 min)
+   → How do variables update?
+   → Different for each method
+   → Check against template
+
+6. Review and check (1 min)
+   → Logic makes sense?
+   → All variables initialized?
+   → Error calculation correct?
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🔍 QUICK IDENTIFICATION GUIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+You see in the problem...          You need to use...
+
+"interval [a,b]" + "f(x)=0"       Bisection or Regula Falsi
+"initial guess x0" + "f(x)=0"     Newton or Fixed Point or Secant
+"find derivative f'(x)"            Newton-Raphson
+"two guesses x0, x1"               Secant Method
+"g(x) form" or "rearrange"        Fixed Point Iteration
+"multiple root" + "f'(x)=0"       Modified Newton-Raphson
+"NO derivative available"          Bisection or Secant
+"NO bracket available"             Newton or Secant or Fixed Point
+
+
+═══════════════════════════════════════════════════════════════════════════════
+💡 MEMORY AIDS - Teach yourself these!
+═══════════════════════════════════════════════════════════════════════════════
+
+BISECTION = "cut in middle"
+    Think: Cutting sandwich in half each time
+
+NEWTON-RAPHSON = "draw tangent line"
+    Think: Slope formula: x_new = x_old - rise/slope
+
+SECANT = "draw secant line between points"
+    Think: Like Newton but with finite difference
+
+REGULA FALSI = "weighted average"
+    Think: Linear interpolation through two points
+
+FIXED POINT = "fixed point on graph"
+    Think: Where y = x intersects with y = g(x)
+
+MODIFIED NEWTON-RAPHSON = "Newton for multiple roots"
+    Think: Handles tangent touches (where f' = 0 too)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🎨 STEP-BY-STEP HAND WRITING STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+When writing on paper during the quiz, follow this order:
+
+Write 1: Clear screen commands (always first)
+         clc; clear; close all;
+
+Write 2: Function definitions
+         f = @(x) ...;
+         
+Write 3: Input section
+         [Choose based on method type]
+
+Write 4: Initialize loop parameters
+         tol = 1e-6;
+         maxIter = 50;
+         i = 0;
+         err = inf;
+
+Write 5: Output header
+         fprintf('header here');
+
+Write 6: Loop opening
+         while (err > tol) && (i < maxIter)
+
+Write 7: Loop increment
+         i = i + 1;
+
+Write 8: [CRITICAL] Method formula
+         [Most important part!]
+
+Write 9: Error calculation
+         if i == 1
+            err = inf;
+         else
+            err = abs(...);
+         end
+
+Write 10: Print results
+          fprintf('results');
+
+Write 11: Update variables
+          x0 = x_new;
+
+Write 12: Close loop
+          end
+
+Write 13: Final output
+          fprintf('root: ...');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ CRITICAL MISTAKES - AVOID AT ALL COSTS!
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ NOT initializing i and err before loop
+   → Code won't work, will print garbage
+
+❌ Using absolute error instead of relative error
+   → Wrong convergence criterion
+
+❌ Not checking bracket condition for closed methods
+   → May not find root even if one exists
+
+❌ Forgetting to update variables at loop end
+   → Infinite loop or no convergence
+
+❌ Wrong derivative formula
+   → Always verify your calculus!
+
+❌ Printf in wrong place (after loop instead of before)
+   → No header, confusing output
+
+❌ Different update rules for different methods
+   → Study patterns carefully!
+
+❌ Forgetting @(x) in function definition
+   → Syntax error
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🏆 SCORING TIPS
+═══════════════════════════════════════════════════════════════════════════════
+
+Instructors typically grade:
+
+✓ Correct method selection (20%)
+✓ Proper formula (30%)
+✓ Correct initialization (15%)
+✓ Proper error calculation (15%)
+✓ Correct output format (10%)
+✓ Clean, readable code (10%)
+
+TO MAXIMIZE SCORE:
+1. Use consistent indentation
+2. Add comments explaining each section
+3. Label your output clearly
+4. Show variable updates explicitly
+5. Double-check formula before submitting
+6. Make sure error formula is exactly right
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📱 LAST-MINUTE STUDY (30 minutes before quiz)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Review the 6 formulas one more time
+□ Do a mental walkthrough of one complete method
+□ Check that you have all 5 study documents
+□ Take a deep breath - you're prepared!
+□ Remember: All methods follow the SAME template pattern!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 FINAL WORDS
+═══════════════════════════════════════════════════════════════════════════════
+
+YOU'VE GOT THIS! 💪
+
+The key to success:
+
+1. MEMORIZE THE TEMPLATE (steps are always the same)
+2. MEMORIZE THE 6 FORMULAS (only things that change)
+3. PRACTICE ERROR CALCULATION (most common mistake)
+4. UNDERSTAND VARIABLE UPDATES (unique per method)
+5. WRITE CLEARLY ON PAPER (easy to read = easy to grade)
+
+Remember: Every quiz problem will fit the template!
+Just identify the method, plug in the formula, and you're done.
+
+Good luck! 🍀🎓
+
+═══════════════════════════════════════════════════════════════════════════════

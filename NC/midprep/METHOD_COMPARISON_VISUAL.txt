@@ -1,0 +1,301 @@
+╔═════════════════════════════════════════════════════════════════════════════╗
+║         METHOD COMPARISON GUIDE - Visual Reference                          ║
+║              Quick comparison of all 6 methods                              ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+METHOD CLASSIFICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+CLOSED METHODS (Need brackets [a,b])        OPEN METHODS (Need x0)
+├─ Bisection         ✓ Safe                ├─ Newton-Raphson      ✓ Fast
+├─ Regula Falsi      ✓ Faster              ├─ Secant               ✓ Fast
+                                           ├─ Fixed Point          ○ Variable
+                                           └─ Modified NR          ✓ Very Fast
+
+
+═══════════════════════════════════════════════════════════════════════════════
+FORMULA REFERENCE TABLE
+═══════════════════════════════════════════════════════════════════════════════
+
+╔════════════════╦══════════════════════════════╦═════════════════╦═════════╗
+║  Method        ║  Iteration Formula           ║  Complexity     ║  Speed  ║
+╠════════════════╬══════════════════════════════╬═════════════════╬═════════╣
+║ Bisection      ║  Xm = (a + b) / 2            ║  Very Simple    ║  ████░  ║
+║ Newton-Raphson ║  x = x0 - f/f'              ║  Simple          ║  █████  ║
+║ Secant         ║  x = x1 - f·Δx/Δf           ║  Medium          ║  █████  ║
+║ Regula Falsi   ║  x = (af(b)-bf(a))/(f(b)-f) ║  Medium          ║  ████░  ║
+║ Fixed Point    ║  x = g(x)                   ║  Simple          ║  ████░  ║
+║ Modified NR    ║  x = x0 - f·f'/(f'²-f·f'')  ║  Complex         ║  █████  ║
+╚════════════════╩══════════════════════════════╩═════════════════╩═════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════════
+INPUT REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+                f(x)    f'(x)   f''(x)   [a,b]   x0    x0,x1   Comments
+Bisection        ✓               →       ✓      -     -       Must bracket
+Newton-Raphson   ✓      ✓               -      ✓     -       Need derivative
+Secant           ✓                      -      -     ✓       Two guesses
+Regula Falsi     ✓                      ✓      -     -       Must bracket
+Fixed Point             →                       ✓     -       g(x) form
+Modified NR      ✓      ✓      ✓               ✓     -       Complex setup
+
+
+═══════════════════════════════════════════════════════════════════════════════
+CONVERGENCE PROPERTIES
+═══════════════════════════════════════════════════════════════════════════════
+
+Method              Rate            Guarantee   Fails When
+─────────────────────────────────────────────────────────────────────────────
+Bisection          Linear (1.0)    Always      Can't bracket root
+Newton-Raphson     Quadratic (2.0) Local       Bad starting guess / f'=0
+Secant             Superlinear      Local       Bad starting guesses
+                   (1.618)
+Regula Falsi       Linear (1.0)    Always      Can't bracket root
+Fixed Point        Linear (1.0)    If |g'|<1   |g'| ≥ 1 at root
+Modified NR        Superlinear      Local       f'² - f·f'' = 0
+
+
+═══════════════════════════════════════════════════════════════════════════════
+ADVANTAGES vs DISADVANTAGES
+═══════════════════════════════════════════════════════════════════════════════
+
+BISECTION
+  ✓ Always converges if bracket exists
+  ✓ Simple to understand and code
+  ✓ Robust
+  ✗ Slow convergence
+  ✗ Must bracket root first
+
+NEWTON-RAPHSON
+  ✓ Very fast (quadratic)
+  ✓ No need to bracket
+  ✓ Standard method
+  ✗ Needs derivative
+  ✗ May diverge from bad start
+  ✗ Fails at f'(x) = 0
+
+SECANT
+  ✓ No derivative needed
+  ✓ Reasonably fast
+  ✓ Only one function evaluation per iteration
+  ✗ Needs two starting points
+  ✗ May diverge
+  ✗ No guaranteed convergence
+
+REGULA FALSI
+  ✓ Always converges if bracket exists
+  ✓ Faster than bisection
+  ✓ No derivative needed
+  ✗ Slower than open methods
+  ✗ Must bracket root first
+
+FIXED POINT
+  ✓ Simple iteration
+  ✓ Many forms available
+  ✗ Convergence depends on g(x) choice
+  ✗ Need |g'(x)| < 1
+  ✗ Rearrangement not always obvious
+
+MODIFIED NEWTON-RAPHSON
+  ✓ Excellent for multiple roots
+  ✓ Very fast convergence
+  ✓ Handles f'=0 case
+  ✗ Need first and second derivatives
+  ✗ Complex formula
+  ✗ Only for multiple roots
+
+
+═══════════════════════════════════════════════════════════════════════════════
+WHICH METHOD TO USE? (Decision Tree)
+═══════════════════════════════════════════════════════════════════════════════
+
+START HERE
+    │
+    ├─→ Can you compute f'(x) easily?
+    │   │
+    │   ├─ YES → Can you compute f''(x)?
+    │   │       │
+    │   │       ├─ YES → Multiple root? → YES → USE: Modified Newton-Raphson
+    │   │       │                    ↓ NO
+    │   │       └─ (Simple root) → USE: Newton-Raphson
+    │   │
+    │   └─ NO  → Can you bracket the root [a,b]?
+    │           │
+    │           ├─ YES → Need speed? → YES → USE: Regula Falsi
+    │           │                  ↓ NO
+    │           │       → USE: Bisection
+    │           │
+    │           └─ NO  → Can you rearrange to g(x)?
+    │                   │
+    │                   ├─ YES, with |g'|<1 → USE: Fixed Point
+    │                   │
+    │                   └─ NO → USE: Secant Method
+    │
+    └─→ [Apply selected method with code template]
+
+
+═══════════════════════════════════════════════════════════════════════════════
+INITIALIZATION PATTERNS
+═══════════════════════════════════════════════════════════════════════════════
+
+ALL METHODS:
+    clc; clear; close all;
+    tol = 1e-6;
+    maxIter = 50;
+    i = 0;
+    err = inf;
+
+BRACKET METHODS (Bisection, Regula Falsi):
+    a = input('Enter a: ');
+    b = input('Enter b: ');
+    while f(a)*f(b) > 0
+        % Re-enter values
+    end
+
+OPEN METHODS (Newton, Secant, Fixed Point, Mod-NR):
+    x0 = input('Enter initial guess: ');
+
+SPECIAL - Secant:
+    x0 = input('Enter x0: ');
+    x1 = input('Enter x1: ');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+ITERATION UPDATE PATTERNS
+═══════════════════════════════════════════════════════════════════════════════
+
+Bisection:
+    Xm = (a + b) / 2;
+    if f(a) * f(Xm) < 0
+        b = Xm;
+    else
+        a = Xm;
+    end
+    Xm_old = Xm;
+
+Newton-Raphson:
+    x_new = x0 - f(x0) / df(x0);
+    x0 = x_new;
+
+Secant:
+    x2 = x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0));
+    x0 = x1;
+    x1 = x2;
+
+Regula Falsi:
+    x_new = (a*f(b) - b*f(a)) / (f(b) - f(a));
+    if f(a) * f(x_new) < 0
+        b = x_new;
+    else
+        a = x_new;
+    end
+    x_old = x_new;
+
+Fixed Point:
+    x_new = g(x0);
+    x0 = x_new;
+
+Modified NR:
+    x_new = x0 - (f0*f1) / (f1^2 - f0*f2);
+    x0 = x_new;
+
+
+═══════════════════════════════════════════════════════════════════════════════
+ERROR CALCULATION PATTERNS
+═══════════════════════════════════════════════════════════════════════════════
+
+All methods use same error formula:
+    
+    if i == 1
+        err = inf;
+    else
+        err = abs((x_new - x_old) / x_new) * 100;
+    end
+
+Where:
+    - x_new: current value
+    - x_old: previous value
+    - Multiplying by 100 gives percentage
+
+Alternative (Absolute error - rarely used):
+    err = abs(x_new - x_old);
+
+
+═══════════════════════════════════════════════════════════════════════════════
+WHEN EACH METHOD FAILS
+═══════════════════════════════════════════════════════════════════════════════
+
+Bisection:
+    ✗ f(a) and f(b) have same sign (not bracketing)
+    ✗ Discontinuity between a and b
+
+Newton-Raphson:
+    ✗ Starting too far from root
+    ✗ f'(x₀) = 0 (tangent vertical)
+    ✗ f'(x) is hard to compute
+    ✗ Root has high multiplicity
+
+Secant:
+    ✗ Very poor starting guesses
+    ✗ Function oscillating wildly
+    ✗ Roots very far apart
+
+Regula Falsi:
+    ✗ Can't bracket the root
+    ✗ Discontinuity in bracket
+
+Fixed Point:
+    ✗ |g'(x)| ≥ 1 throughout domain
+    ✗ No suitable rearrangement found
+    ✗ g(x) undefined in search region
+
+Modified NR:
+    ✗ f'' is hard to compute
+    ✗ f'² - f·f'' = 0 (singularity)
+    ✗ Not a multiple root (should use regular NR)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+ACCURACY COMPARISON (Typical iterations to reach 1e-6)
+═══════════════════════════════════════════════════════════════════════════════
+
+For interval [0, 10] with root at x ≈ 3:
+
+Method                  Iterations    Time     Difficulty
+─────────────────────────────────────────────────────────
+Bisection               ~20           Medium   Easy
+Newton-Raphson          4-6           Fast     Medium
+Secant                  7-9           Fast     Medium
+Regula Falsi            8-12          Medium   Easy
+Fixed Point             10-15         Medium   Hard (setup)
+Modified NR             3-5           Very Fast Hard
+
+
+═══════════════════════════════════════════════════════════════════════════════
+STUDY CHECKLIST FOR QUIZ
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Can I identify which method from the formula alone?
+□ Can I memorize 6 formulas?
+□ Do I know which requires derivatives?
+□ Do I know which requires bracketing?
+□ Can I write the template without looking?
+□ Do I know how to calculate error correctly?
+□ Can I trace through one iteration by hand?
+□ Do I know which method is fastest?
+□ Do I know which method is most reliable?
+□ Can I initialize variables correctly?
+□ Can I write fprintf for nice output?
+□ Do I know how to update variables for each method?
+□ Can I explain why each method converges/diverges?
+□ Can I derive a Newton formula from first principles?
+□ Do I know the order of convergence for each method?
+
+═══════════════════════════════════════════════════════════════════════════════
+
+If you can answer YES to all these, you're ready for the quiz! ✓
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,267 @@
+╔═════════════════════════════════════════════════════════════════════════════╗
+║           MATLAB ROOT-FINDING METHODS - QUICK REFERENCE SHEET               ║
+║                    Print & Keep with you for the quiz!                      ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+1. BISECTION METHOD
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find root of f(x) = 0 in interval [a, b]
+REQUIRES:    f(x), interval [a, b] where f(a)·f(b) < 0
+TYPE:        Closed method (bracket method)
+SPEED:       SLOW but guaranteed
+CONVERGENCE: If f continuous and f(a)·f(b) < 0 → ALWAYS converges
+
+ITERATION FORMULA:
+    Xm = (a + b) / 2
+    
+CONDITION CHECK:
+    if f(a) · f(Xm) < 0
+        b = Xm      (root in [a, Xm])
+    else
+        a = Xm      (root in [Xm, b])
+    end
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     Xm = (a + b) / 2;                                                       │
+│     if f(a) * f(Xm) < 0                                                     │
+│         b = Xm;                                                             │
+│     else                                                                    │
+│         a = Xm;                                                             │
+│     end                                                                     │
+│     err = abs((Xm - Xm_old) / Xm) * 100;                                    │
+│     Xm_old = Xm;                                                            │
+│ end                                                                         │
+
+WHEN TO USE: When you have two points bracketing the root
+
+
+═══════════════════════════════════════════════════════════════════════════════
+2. NEWTON-RAPHSON METHOD
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find root of f(x) = 0
+REQUIRES:    f(x), f'(x), initial guess x0
+TYPE:        Open method
+SPEED:       FAST (quadratic convergence)
+CONVERGENCE: Fast near root, may diverge far from root
+
+ITERATION FORMULA:
+    x_new = x0 - f(x0) / f'(x0)
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     f0 = f(x0);                                                             │
+│     f1 = df(x0);                                                            │
+│     x_new = x0 - f0 / f1;                                                   │
+│     err = abs((x_new - x0) / x_new) * 100;                                  │
+│     x0 = x_new;                                                             │
+│ end                                                                         │
+
+WHEN TO USE: When you have f'(x) and good initial guess
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3. SECANT METHOD
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find root of f(x) = 0 WITHOUT derivative
+REQUIRES:    f(x), TWO initial guesses (x0, x1)
+TYPE:        Open method
+SPEED:       FAST (superlinear, ~1.618)
+CONVERGENCE: Very good, faster than bisection
+
+ITERATION FORMULA:
+    x_new = x1 - f(x1) · (x1 - x0) / (f(x1) - f(x0))
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     x2 = x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0));                          │
+│     err = abs((x2 - x1) / x2) * 100;                                        │
+│     x0 = x1;                                                                │
+│     x1 = x2;                                                                │
+│ end                                                                         │
+
+WHEN TO USE: When you can't compute derivative easily
+
+
+═══════════════════════════════════════════════════════════════════════════════
+4. REGULA FALSI (False Position Method)
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find root using linear interpolation on bracket
+REQUIRES:    f(x), interval [a, b] where f(a)·f(b) < 0
+TYPE:        Closed method (bracket method)
+SPEED:       MEDIUM (better than bisection)
+CONVERGENCE: Guaranteed if f continuous and f(a)·f(b) < 0
+
+ITERATION FORMULA:
+    x_new = (a·f(b) - b·f(a)) / (f(b) - f(a))
+
+CONDITION CHECK:
+    if f(a) · f(x_new) < 0
+        b = x_new
+    else
+        a = x_new
+    end
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     x_new = (a*f(b) - b*f(a)) / (f(b) - f(a));                              │
+│     if f(a) * f(x_new) < 0                                                  │
+│         b = x_new;                                                          │
+│     else                                                                    │
+│         a = x_new;                                                          │
+│     end                                                                     │
+│     err = abs((x_new - x_old) / x_new) * 100;                               │
+│     x_old = x_new;                                                          │
+│ end                                                                         │
+
+WHEN TO USE: When bisection is too slow but you need guarantee
+
+
+═══════════════════════════════════════════════════════════════════════════════
+5. FIXED POINT ITERATION
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find fixed point x = g(x) by iteration
+REQUIRES:    Rearranged g(x), initial guess x0
+TYPE:        Open method
+SPEED:       VARIABLE (depends on g'(x))
+CONVERGENCE: Need |g'(x)| < 1 near root
+
+ITERATION FORMULA:
+    x_new = g(x0)
+    where g(x) is the rearranged form: x = g(x)
+
+REARRANGEMENT EXAMPLES:
+    f(x) = 0  →  x = g(x)
+    x³ + x - 1 = 0  →  x = ³√(1 - x)
+    2x - log(x) - 7 = 0  →  x = exp(2x - 7)
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     x_new = g(x0);                                                          │
+│     err = abs((x_new - x0) / x_new) * 100;                                  │
+│     x0 = x_new;                                                             │
+│ end                                                                         │
+
+CONVERGENCE CHECK:
+    dg = abs(dg_dx at root)
+    if dg < 1  →  CONVERGES
+    if dg > 1  →  DIVERGES
+
+WHEN TO USE: When equation is easily rearrangeable
+
+
+═══════════════════════════════════════════════════════════════════════════════
+6. MODIFIED NEWTON-RAPHSON METHOD
+═══════════════════════════════════════════════════════════════════════════════
+
+PURPOSE:     Find MULTIPLE roots where f(x) = f'(x) = 0
+REQUIRES:    f(x), f'(x), f''(x), initial guess x0
+TYPE:        Open method
+SPEED:       VERY FAST (superlinear for multiple roots)
+CONVERGENCE: For multiple roots: EXCELLENT
+
+ITERATION FORMULA:
+    x_new = x0 - (f(x0) · f'(x0)) / ([f'(x0)]² - f(x0) · f''(x0))
+
+KEY CODE TEMPLATE:
+│ while (err > tol) && (i < maxIter)                                          │
+│     i = i + 1;                                                              │
+│     f0 = f(x0);                                                             │
+│     f1 = df(x0);                                                            │
+│     f2 = d2f(x0);                                                           │
+│     x_new = x0 - (f0 * f1) / (f1^2 - f0 * f2);                              │
+│     err = abs((x_new - x0) / x_new) * 100;                                  │
+│     x0 = x_new;                                                             │
+│ end                                                                         │
+
+WHEN TO USE: When root has multiplicity > 1 (tangent to x-axis)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+UNIVERSAL PATTERN - ALL METHODS USE THIS STRUCTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+STEP 1: clc; clear; close all;
+STEP 2: f = @(x) [function];
+STEP 3: [Get input: a, b OR x0]
+STEP 4: [Validate if bracket method]
+STEP 5: tol = 1e-6; maxIter = 50; i = 0; err = inf;
+STEP 6: fprintf(['Print header table']);
+STEP 7: while (err > tol) && (i < maxIter)
+          i = i + 1;
+          [FORMULA HERE - changes per method]
+          [Error calculation]
+          [fprintf results]
+          [Update variables]
+       end
+STEP 8: fprintf(['Final results']);
+
+
+═══════════════════════════════════════════════════════════════════════════════
+COMMON ERROR FORMULAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Relative Error (MOST COMMON):
+    err = abs((x_new - x_old) / x_new) * 100  [%]
+
+Absolute Error:
+    err = abs(x_new - x_old)
+
+First Iteration:
+    err = inf  (no previous value to compare)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+STOPPING CRITERIA
+═══════════════════════════════════════════════════════════════════════════════
+
+Stop when ANY of these is true:
+    1. err < tol  (error tolerance reached)
+    2. i > maxIter  (maximum iterations exceeded)
+    3. f(x_new) = 0  (exact root found - optional)
+    4. Denominator = 0  (mathematical error - avoid!)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+FUNCTION DEFINITIONS IN MATLAB
+═══════════════════════════════════════════════════════════════════════════════
+
+f = @(x) x^2 - 12;              % Parabola
+f = @(x) exp(x) - 5*x;          % Exponential
+f = @(x) cos(x);                % Trigonometric
+f = @(x) x^3 - 2*x - 5;         % Cubic
+
+Derivatives:
+df = @(x) 2*x;                  % d/dx(x^2)
+df = @(x) exp(x) - 5;           % d/dx(exp(x) - 5x)
+df = @(x) -sin(x);              % d/dx(cos(x))
+df = @(x) 3*x^2 - 2;            % d/dx(x^3 - 2x)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+IMPORTANT NOTES FOR QUIZ
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Always start with: clc; clear; close all;
+✓ Use descriptive variable names (x0, x_new, err, etc)
+✓ Print header BEFORE the loop (makes output readable)
+✓ Initialize: i = 0, err = inf BEFORE loop
+✓ Use RELATIVE error by default: abs((new-old)/new)*100
+✓ For bracket methods: ALWAYS check f(a)*f(b) < 0
+✓ For fixed point: Rearrange equation FIRST, then code
+✓ Use fprintf() with format strings for clean output
+✓ Update variables correctly at end of each iteration
+✓ Keep same pattern for all methods - ONLY formula changes!
+
+═══════════════════════════════════════════════════════════════════════════════

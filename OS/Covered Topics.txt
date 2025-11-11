@@ -1,0 +1,107 @@
+CPU consumptions I/O wait -- CPU utilization = (1 - P^n)
+
+What is Kernel
+-core part of an operating system
+-bridge between applications and the physical hardware
+-handling system resources like CPU, memory, and device management
+-Prevents unauthorized access
+
+Zombie Process 
+-Process that completed the execution but still have entry in the memory
+
+Process Scheduling
+-FCFS SJF non-preemptive
+-SRTF RR preemptive
+Response time = Start time -  Arrival time
+T.A.T = Completion - arrival time 
+Wait time =  T.A.T - Burst Time 
+
+
+PIPES
+-UnNamed Pipes for parent child communication
+-Named Pipes for communication of random processes
+
+THREADS
+-Threads Multiprogramming by context switching (not true parallelism)
+-Threads use the same memory as of their calling processes
+-Multiprocessing different processes in different cores simultaneously (true parallelism) 
+-Context Switch process switching following scheduling algorithms
+
+
+THREAD Synchronization 
+
+Semaphores
+-Allowing multiple threads to access multiple resources at a time
+-can be unlocaked by any thread
+-no ownership
+
+Binary Semaphores
+-Thread synchronization tool
+-Used to control access to a shared resource
+-Allowing only one at a time
+-Commonly used for mutual exclusion
+-no ownership 
+
+Mutex
+-Synchronization primitive similar to a binary semaphore but is more restrictive
+-Allowing only one thread to hold the "lock" on a resource at any time
+-Prevents other threads from locking it until the first thread is done.
+
+Process Control Block 
+-It is a data structure managed by OS containing process information e.g.
+-process state, process id, scheduling info ect
+
+Replicated ls | ls -l | LAB7
+
+-Pages
+one partition in main memory => Frame
+same partition in secondary memory => Page
+SizeOfPage = SizeOfFrame
+virtual address to physical address
+bit to represent page/frame offset/size, frame no, page no
+
+-Page Replacement strategies 
+FIFO
+LRU
+OPTIMAL the best but can't implement
+
+---Dead Lock
+--4 conditions to occur simultaneously
+-mutual exclusion only one thread at a time
+-hold and wait
+-no preemption
+-circular wait
+
+--DeadLock Identifcation
+
+-Synchronization 
+Producer Consumer LAB using Semaphores and mutex
+Disable interrupts during semaphore operations
+Signal Blocking (SIGVTALARM)
+Signal masking
+Safe Sequence Dead Lock Avoidance
+Disabling interrupts during Semaphore Operations
+
+-Persistent Management 
+hard links and soft links
+-Inode -> metadata USP BOOK page 200
+Direct pointers
+single pointers -> direct pointers
+double pointers -> single pointers -> direct pointers
+double pointers -> single pointers -> direct pointers
+Triple pointers -> double pointers -> single pointers -> direct pointers
+
+-Disk Scheduling 
+
+USP book page 200
+figure 5.5, 5.6, 5.7 , 5.8, 5.9 
+prepare all these for exam
+
+
+Process creation forking, pipes, 
+Process scheduling with I/O bound processes, Threads synchronization, mutexes, semaphore, condition variable, producer consumer, reader-writer locks, contiguous memory allocation, best fit, worst fit  first fit,  paging, virtual to physical address translation, page replacement strategies, multilevel paging, deadlock detection using RAG, deadlock avoidance using Bankers Algo, File storage metadata inode, links, hard link, soft links
+
+
+
+
+

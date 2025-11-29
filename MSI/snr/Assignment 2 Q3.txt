@@ -1,0 +1,26 @@
+MOV BX,0B000H
+MOV SS,BX
+MOV SP,0    
+
+MOV CX,8000H          
+
+LOOP_STACK:
+    POP DX
+    CALL CHECK
+
+LOOP LOOP_STACK  
+
+CHECK:
+   TEST DX,1
+   
+   JC ODD
+   
+   INC AX
+   JMP END
+   
+   ODD: 
+   INC BX
+   
+   END:
+   
+RET

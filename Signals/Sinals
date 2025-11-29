@@ -1,0 +1,15 @@
+kill -9 any psid -- generate signals
+raise() -- self signal loopback
+
+kill -l to get list of SIGNALS
+kill() -- generate signals
+raise() -- self signal loopback
+SIGKILL cannot be handled
+CTRL + C sends SIGINT
+SIGNAL masking -- vlocking certain signals
+
+signal masking
+dead lock
+producer consimer 
+directory -- devloping ls -l
+

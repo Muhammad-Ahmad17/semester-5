@@ -1,0 +1,222 @@
+	; > read char
+	;mov ah, 07h     ; Read char without echo | 2 for echo
+	;int 21h         ; AL = ASCII of key (e.g. '2' = 32h)
+	; > disp char
+	;mov dl, al      ; copy AL > DL
+	;mov ah, 02h     ; Display function
+	;int 21h         ; displays the character in DL
+;            
+
+;.model small
+;.stack 100h                 
+;.data
+;    PROMPT db 'Enter text: $'
+;    BUFFER db 20 , ? , 20 DUP('$') 
+;                      ; max length 20
+;                      ; actual length typed
+;                      ; input storage, with $ to terminate
+;    MSG2 db 0Dh,0Ah, 'You typed: $'
+;.code
+;main proc
+;    mov ax, @data
+;    mov ds, ax
+;
+;    ; show prompt  ah = 9
+;    lea dx, PROMPT ; write 
+;    lea dx, MSG2
+;    mov ah, 09h
+;    int 21h
+;
+;    ; display input back
+;    lea dx, BUFFER 
+;    mov ah, 09h
+;    int 21h
+;
+;    ; exit
+;    mov ah, 4Ch
+;    int 21h
+;main endp
+;end main        
+;
+
+ 
+  
+;
+;.MODEL SMALL
+;.STACK 100h
+;.DATA
+;; Variables and constants are defined here 
+;  disp db '? $'
+;  msg1 db 0ah , 'the sum of $ ' 
+;  msg2 db " and $" 
+;  msg3 db " is $ "
+;.CODE
+;MAIN PROC
+;; Instructions will be written here  
+;   mov cx, @data
+;   mov ds , cx
+;     ; disp ?   
+;   mov ah , 09h
+;   lea dx , disp
+;   int 21h 
+;      ; > read operand 1
+;        mov ah, 07h     ; Read char without echo | 2 for echo
+;        int 21h         ; al = read data
+;        mov cl , al
+;        ;sub cl , 30h    ; cl = operand 1
+;      ; > read operand 2
+;        mov ah, 07h     ; Read char without echo | 2 for echo
+;        int 21h         ; al = read data   
+;        mov ch , al
+;        ;sub ch , 30h    ; ch = opernad 2 
+;      ; > disp msg1
+;        mov ah , 09h
+;        lea dx , msg1
+;        int 21h
+;      ; > disp operand 1
+;        mov dl, cl      ; copy cl > DL
+;        mov ah, 02h     ; Display function
+;        int 21h         ; displays the character in DL
+;      ; > disp msg2
+;        mov ah , 09h
+;        lea dx , msg2
+;        int 21h
+;      ; > disp operand 2
+;        mov dl, ch      ; copy ch > DL
+;        mov ah, 02h     ; Display function
+;        int 21h         ; displays the character in DL   
+;      ; > disp msg3
+;        mov ah , 09h
+;        lea dx , msg3
+;        int 21h   
+;        ; converting to assci  
+;             sub cl , 30h    ; cl = operand 1
+;             sub ch , 30h    ; ch = opernad 2 
+;
+;      ; > caluclating sum 
+;        add ch ,cl ; ch = sum result  
+;        add ch , 30h 
+;      ; > disp sum          
+;        mov dl, ch      ; copy ch > DL
+;        mov ah, 02h     ; Display function
+;        int 21h
+;MAIN ENDP
+;; Procedures other than MAIN will be written here
+;END MAIN
+;          
+;                            
+                            
+                            
+                            
+                            
+                            
+;     
+; 
+; 
+;.model small
+;.stack 100h
+;.data
+;    PROMPT db 'Enter letters in lowercase: $'
+;    BUFFER db 20 , ? , 20 DUP('$') 
+;                      ; max length 20
+;                      ; actual length typed
+;                      ; input storage, with $ to terminate
+;    MSG2 db 0Dh,0Ah, 'uppercase : $'
+;.code
+;main proc
+;    mov ax, @data
+;    mov ds, ax
+;
+;    ; show prompt  ah = 9
+;    lea dx, PROMPT ; write 
+;    mov ah, 09h
+;    int 21h
+;
+;    ; read string  ah = 10
+;    lea dx, BUFFER
+;    mov ah, 0Ah
+;    int 21h
+;
+;    ; message2
+;    lea dx, MSG2
+;    mov ah, 09h
+;    int 21h
+;     
+;    mov cx ,20
+;     ; loop to convert lower case to upper
+;    
+;    ; display input back
+;    lea dx, BUFFER 
+;    mov ah, 09h
+;    int 21h
+;
+;    ; exit
+;    mov ah, 4Ch
+;    int 21h
+;main endp
+;end main        
+;
+;
+;                 
+;                 
+;                 
+;                 
+;                 
+;                 lea bx, buffer 
+;                 xor cx,cx
+;                 moc cl , [buffer + 1] ; actual filed size of buffer means user entered 
+;          
+;          
+;          
+;          
+;                                                                                                                    
+;                                                                                                                    
+;                                                                                                                                                                                                                                   
+                                                                                                                    
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+; Variables and constants are defined here 
+    oper1 DB 0ah ,'enter operand 1: $'
+    oper2 DB 0ah ,'enter operand 2: $'
+.CODE
+MAIN PROC 
+    ; initialinzing data mem.     
+    MOV CX, @data
+    MOV DS ,CX 
+    ; show prompt  for oper-1
+    LEA DX , oper1 
+    MOV AH , 09h
+    INT 21h
+    ; read oper-1
+    MOV AH, 07h     ; Read char without echo | 2 for echo
+    INT 21h         ; al = read data
+    MOV CL , AL
+    ; sub cl , 30h    ; cl = operand 1 -> convert it for arthematic
+    ; disp oper-1
+    MOV DL, CL      ; copy cl > DL
+    MOV AH, 02h     ; Display function
+    INT 21h         ; displays the character in DL
+    ; show prompt  for oper-2
+    LEA DX , oper2 
+    MOV AH , 09h
+    INT 21h
+    ; read operand 2
+    MOV AH, 01h     ; Read char without echo | 2 for echo
+    INT 21h         ; al = read data   
+    MOV CH , AL
+    ;sub ch , 30h    ; ch = opernad 2
+    
+MAIN ENDP
+; Procedures other than MAIN will be written here
+END MAIN
+        
+        
+        
+        
+        
+        
+        
+   

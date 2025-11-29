@@ -1,0 +1,146 @@
+<html>
+<head>
+       <title>source code: ass2.asm</title>
+       <meta name="description" content="source code">
+       <style>
+           a:link {text-decoration: none}
+           a:visited {text-decoration: none}
+           a:hover {text-decoration: none; color:#ff0000}
+       </style>
+</head>
+<body leftmargin=110  rightmargin=110 topmargin=20 bgcolor=#C0C0C0 text=#000000 link=blue vlink=blue alink=blue>
+ 
+ 
+<!-- * -->
+ 
+ 
+
+
+
+
+&nbsp; &nbsp;<center> <font color=#C0C0C0> ;</font> <font size=3 face="DejaVu Sans Mono"> ass2.asm </font></center>
+
+
+
+
+
+
+<!-- START AUTOMATIC ASM TO HTML EXPORT -->
+<pre><font size=3 face="DejaVu Sans Mono">
+.MODEL SMALL 
+.STACK 100h 
+.DATA 
+    dummy        <font color=#000064>DB</font> 275 DUP(0) 
+    arr          <font color=#000064>DB</font> <font color=#800080>'9'</font>,<font color=#800080>'1'</font>,<font color=#800080>'0'</font>,<font color=#800080>'2'</font>,<font color=#800080>'8'</font>,<font color=#800080>'5'</font>,<font color=#800080>'4'</font>,<font color=#800080>'7'</font>,<font color=#800080>'3'</font>,<font color=#800080>'6'</font>      <font color=#008000>; array of 10 elements </font>
+    msg_unsorted <font color=#000064>DB</font> 0Ah,0Dh,<font color=#800080>'Unsorted array: $'</font> 
+    msg_sorted   <font color=#000064>DB</font> 0Ah,0Dh,<font color=#800080>'Sorted array: $'</font> 
+    newline      <font color=#000064>DB</font> 0Ah,0Dh,<font color=#800080>'$'</font> 
+    space        <font color=#000064>DB</font> <font color=#800080>' $'</font> 
+ 
+.CODE 
+MAIN <font color=#0000FF>PROC</font> 
+    <font color=#008000>; --- initialize data segment ---  </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AX</font>, @DATA 
+    <font color=#0000FF>MOV</font> <font color=#800000>DS</font>, <font color=#C80000>AX</font>               
+    <font color=#008000>; --- display unsorted array --- </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font>, msg_unsorted 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#0000FF>CALL</font> PRINT_ARRAY 
+ 
+    <font color=#008000>; --- sort array using bubble sort --- </font>
+    <font color=#0000FF>CALL</font> BUBBLE_SORT 
+ 
+    <font color=#008000>; --- display sorted array --- </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font>, msg_sorted 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#0000FF>CALL</font> PRINT_ARRAY 
+ 
+    <font color=#008000>; --- exit program --- </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 4Ch 
+    <font color=#0000FF>INT</font> 21h 
+MAIN ENDP 
+ 
+ 
+<font color=#008000>; SUBROUTINES </font>
+ 
+ 
+<font color=#008000>; --- Print Array Subroutine --- </font>
+PRINT_ARRAY <font color=#0000FF>PROC</font> 
+    <font color=#0000FF>MOV</font> <font color=#C80000>SI</font>, 0 
+    <font color=#0000FF>MOV</font> <font color=#C80000>CX</font>, 10               <font color=#008000>; total 10 elements </font>
+PRINT_LOOP: 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AL</font>, arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>]</font> 
+    <font color=#008000>;ADD AL, 30h              ; convert to ASCII </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>DL</font>, <font color=#C80000>AL</font> 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 02h 
+    <font color=#0000FF>INT</font> 21h 
+ 
+    <font color=#008000>; print space for readability </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font>, space 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 09h 
+    <font color=#0000FF>INT</font> 21h 
+ 
+    <font color=#0000FF>INC</font> <font color=#C80000>SI</font> 
+    <font color=#0000FF>LOOP</font> PRINT_LOOP 
+ 
+    <font color=#008000>; newline </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font>, newline 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#0000FF>RET</font> 
+PRINT_ARRAY ENDP 
+ 
+ 
+<font color=#008000>; --- Swap Subroutine --- </font>
+<font color=#008000>; expects SI to point to first element of pair </font>
+SWAP <font color=#0000FF>PROC</font> 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AL</font>, arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>]</font>          <font color=#008000>; arr[SI] -&gt; AL </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>BL</font>, arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>+</font>1<font color=#0064C8>]</font>        <font color=#008000>; arr[SI+1] -&gt; BL </font>
+ 
+    <font color=#0000FF>MOV</font> arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>]</font>, <font color=#C80000>BL</font> 
+    <font color=#0000FF>MOV</font> arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>+</font>1<font color=#0064C8>]</font>, <font color=#C80000>AL</font> 
+    <font color=#0000FF>RET</font> 
+SWAP ENDP 
+ 
+ 
+<font color=#008000>; --- Bubble Sort Subroutine --- </font>
+BUBBLE_SORT <font color=#0000FF>PROC</font> 
+    <font color=#0000FF>MOV</font> <font color=#C80000>CX</font>, 9                <font color=#008000>; outer loop count (n-1) </font>
+OUTER_LOOP: 
+    <font color=#0000FF>MOV</font> <font color=#C80000>SI</font>, 0 
+    <font color=#0000FF>MOV</font> <font color=#C80000>DX</font>, <font color=#C80000>CX</font>               <font color=#008000>; inner loop count </font>
+ 
+INNER_LOOP: 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AL</font>, arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>]</font> 
+    <font color=#0000FF>MOV</font> <font color=#C80000>BL</font>, arr<font color=#0064C8>[</font><font color=#C80000>SI</font><font color=#0064C8>+</font>1<font color=#0064C8>]</font> 
+    <font color=#0000FF>CMP</font> <font color=#C80000>AL</font>, <font color=#C80000>BL</font> 
+    <font color=#0000FF>JBE</font> SKIP_SWAP            <font color=#008000>; skip if already in order </font>
+    <font color=#0000FF>CALL</font> SWAP                <font color=#008000>; otherwise, swap elements </font>
+ 
+SKIP_SWAP: 
+    <font color=#0000FF>INC</font> <font color=#C80000>SI</font> 
+    <font color=#0000FF>DEC</font> <font color=#C80000>DX</font> 
+    <font color=#0000FF>JNZ</font> INNER_LOOP     <font color=#008000>; complete the inner loop count first jump not zero </font>
+    <font color=#0000FF>LOOP</font> OUTER_LOOP 
+    <font color=#0000FF>RET</font> 
+BUBBLE_SORT ENDP 
+ 
+<font color=#000064>END</font> MAIN 
+ 
+</font></pre>
+<center> <font color=#C0C0C0>;</font> <a href="http://www.emu8086.com" target="_blank"><font face=verdana size=1 color=#000000> - asm2html - </font></a> </center>
+<!-- emu8086 version 4.08    -->
+<!-- STOP AUTOMATIC ASM TO HTML EXPORT -->
+
+
+
+
+ 
+ 
+<!-- *** -->
+ 
+ 
+</body>
+</html>

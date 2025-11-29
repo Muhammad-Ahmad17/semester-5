@@ -1,0 +1,82 @@
+1234H: 2000H => AL
+
+0ABCDH: 5000H => AH
+
+SS:SP => 9000H: 0000H
+CX => FFFF/2 =>8000H => 32768
+
+
+MOV BX,1234H
+MOV DS,BX 
+
+MOV SI,2000H
+MOV [SI],55
+MOV AL,[SI]
+
+MOV BX,0ABCDH
+MOV DS,BX 
+
+MOV DI,5000H
+MOV [DI],25              
+MOV AH,[DI] 
+
+MOV BX,9000H
+MOV SS,BX 
+MOV SP,0
+
+MOV CX,8000H 
+
+COPY_LOOP:
+    PUSH AX              
+              
+LOOP COPY_LOOP
+
+----------------------------------------------------------
+
+
+MOV BX,1234H
+MOV DS,BX 
+
+MOV SI,2000H
+MOV [SI],5
+MOV AL,[SI]
+
+MOV BX,0ABCDH
+MOV DS,BX 
+
+MOV DI,5000H
+MOV [DI],25              
+MOV AH,[DI] 
+
+MOV BX,9000H
+MOV SS,BX 
+MOV SP,0
+
+MOV CX,8000H 
+
+COPY_LOOP:
+    PUSH AX 
+    
+    MOV BX,0ABCDH
+    MOV DS,BX 
+    INC DI
+    MOV [DI],CH              
+    MOV AH,[DI]
+    
+    MOV BX,1234H
+    MOV DS,BX
+    INC SI  
+    MOV [SI],CL
+    MOV AL,[SI]  
+    
+       
+              
+LOOP COPY_LOOP
+
+
+ 
+
+
+
+ 
+

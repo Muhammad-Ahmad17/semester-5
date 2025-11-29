@@ -1,0 +1,183 @@
+<html>
+<head>
+       <title>source code: ass1.asm</title>
+       <meta name="description" content="source code">
+       <style>
+           a:link {text-decoration: none}
+           a:visited {text-decoration: none}
+           a:hover {text-decoration: none; color:#ff0000}
+       </style>
+</head>
+<body leftmargin=110  rightmargin=110 topmargin=20 bgcolor=#C0C0C0 text=#000000 link=blue vlink=blue alink=blue>
+ 
+ 
+<!-- * -->
+ 
+ 
+
+
+
+
+&nbsp; &nbsp;<center> <font color=#C0C0C0> ;</font> <font size=3 face="DejaVu Sans Mono"> ass1.asm </font></center>
+
+
+
+
+
+
+<!-- START AUTOMATIC ASM TO HTML EXPORT -->
+<pre><font face="DejaVu Sans Mono">
+ 
+.MODEL SMALL 
+.STACK 100h 
+.DATA 
+<font color=#008000>; Variables and constants are defined here  </font>
+    oper1 <font color=#000064>DB</font> 0ah , 0dh , <font color=#800080>'enter operand 1: $'</font> 
+    oper2 <font color=#000064>DB</font> 0ah , 0dh , <font color=#800080>'enter operand 2: $'</font> 
+    oper3 <font color=#000064>DB</font> 0ah , 0dh , <font color=#800080>'enter operator {+,-,*,/} : $'</font> 
+    div0 <font color=#000064>DB</font> 0ah , 0dh , <font color=#800080>'division by zero $'</font> 
+    res <font color=#000064>DB</font> 0ah , 0dh , <font color=#800080>'result: $'</font> 
+    agn <font color=#000064>DB</font> , 0dh , 0ah , <font color=#800080>'want to continoue?(y/n):$'</font> 
+     
+.CODE 
+MAIN <font color=#0000FF>PROC</font> 
+    start:  
+    <font color=#008000>; initialinzing data mem.      </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>CX</font>, @data 
+    <font color=#0000FF>MOV</font> <font color=#800000>DS</font> ,<font color=#C80000>CX</font>  
+     
+     
+    <font color=#008000>; show prompt  for oper-1 </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font> , oper1  
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font> , 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#008000>; read oper-1 </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 01h     <font color=#008000>; Read char without echo </font>
+    <font color=#0000FF>INT</font> 21h         <font color=#008000>; al = read data  </font>
+    <font color=#0000FF>SUB</font> <font color=#C80000>AL</font>, 30h 
+    <font color=#0000FF>MOV</font> <font color=#C80000>CL</font> , <font color=#C80000>AL</font> 
+    <font color=#008000>; sub cl , 30h    ; cl = operand 1 </font>
+     
+     
+    <font color=#008000>; show prompt  for oper-2 </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font> , oper2  
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font> , 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#008000>; read oper-2 </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 01h     <font color=#008000>; Read char without echo  </font>
+    <font color=#0000FF>INT</font> 21h         <font color=#008000>; al = read data </font>
+    <font color=#0000FF>SUB</font> <font color=#C80000>AL</font>, 30h    
+    <font color=#0000FF>MOV</font> <font color=#C80000>CH</font> , <font color=#C80000>AL</font> 
+    <font color=#008000>;sub ch , 30h    ; ch = opernad 2   </font>
+            
+            
+    <font color=#008000>; show prompt  for oper-2 </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font> , oper3  
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font> , 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#008000>; read oper-3 </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 01h     <font color=#008000>; Read char without echo  </font>
+    <font color=#0000FF>INT</font> 21h         <font color=#008000>; al = read data    </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>BH</font> , <font color=#C80000>AL</font>     <font color=#008000>; bh = operator 3 </font>
+     
+    <font color=#008000>; call calculator </font>
+    <font color=#0000FF>CALL</font> CALCULATOR  <font color=#008000>; input : [cl:operand-1 , ch:operand-2 , bh:operator] , output :[cl:result]   </font>
+     
+    <font color=#008000>; show prompt  for result </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font> , res  
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font> , 09h 
+    <font color=#0000FF>INT</font> 21h 
+     
+    <font color=#008000>; show result  </font>
+    <font color=#0000FF>ADD</font> <font color=#C80000>CL</font>, 30h 
+    <font color=#0000FF>MOV</font> <font color=#C80000>DL</font>, <font color=#C80000>CL</font>      <font color=#008000>; copy AL &gt; DL </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 02h     <font color=#008000>; Display function </font>
+    <font color=#0000FF>INT</font> 21h         <font color=#008000>; displays the character in DL </font>
+     
+    <font color=#008000>;again ?  </font>
+    <font color=#008000>; prompt user to rerun or exit </font>
+    <font color=#0000FF>LEA</font> <font color=#C80000>DX</font>, agn 
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 09h 
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#008000>; read user choice </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 01h      
+    <font color=#0000FF>INT</font> 21h 
+    <font color=#0000FF>CMP</font> <font color=#C80000>AL</font>, <font color=#800080>'Y'</font> 
+    <font color=#0000FF>JE</font> start 
+    <font color=#0000FF>CMP</font> <font color=#C80000>AL</font>, <font color=#800080>'y'</font> 
+    <font color=#0000FF>JE</font> start 
+      
+    <font color=#008000>; return to terminal </font>
+    <font color=#0000FF>MOV</font> <font color=#C80000>AH</font>, 4Ch       <font color=#008000>; return to DOS </font>
+    <font color=#0000FF>INT</font> 21h      
+MAIN ENDP 
+<font color=#008000>; Procedures other than MAIN will be written here  </font>
+CALCULATOR <font color=#0000FF>PROC</font>  
+     
+    <font color=#0000FF>CMP</font> <font color=#C80000>BH</font>, <font color=#800080>'+'</font>    <font color=#008000>; ASCII 2Bh </font>
+    <font color=#0000FF>JE</font> ADDITION 
+ 
+    <font color=#0000FF>CMP</font> <font color=#C80000>BH</font>, <font color=#800080>'-'</font>    <font color=#008000>; ASCII 2Dh </font>
+    <font color=#0000FF>JE</font> SUBTRACTION 
+ 
+    <font color=#0000FF>CMP</font> <font color=#C80000>BH</font>, <font color=#800080>'*'</font>    <font color=#008000>; ASCII 2Ah </font>
+    <font color=#0000FF>JE</font> MULTIPLICATION 
+ 
+    <font color=#0000FF>CMP</font> <font color=#C80000>BH</font>, <font color=#800080>'/'</font>    <font color=#008000>; ASCII 2Fh </font>
+    <font color=#0000FF>JE</font> DIVISION 
+ 
+    <font color=#0000FF>RET</font>  
+     
+    ADDITION: 
+        <font color=#0000FF>ADD</font> <font color=#C80000>CL</font> , <font color=#C80000>CH</font>    <font color=#008000>; res = cl  </font>
+        <font color=#0000FF>RET</font> 
+     
+    SUBTRACTION:  
+        <font color=#0000FF>SUB</font> <font color=#C80000>CL</font> , <font color=#C80000>CH</font>    <font color=#008000>; res = cl </font>
+        <font color=#0000FF>RET</font> 
+         
+    MULTIPLICATION:   <font color=#008000>; ax = al * &lt;&gt; </font>
+        <font color=#0000FF>MOV</font> <font color=#C80000>AL</font> , <font color=#C80000>CL</font> 
+        <font color=#0000FF>MUL</font> <font color=#C80000>CH</font>        <font color=#008000>; res = ax   </font>
+        <font color=#0000FF>MOV</font> <font color=#C80000>CL</font> , <font color=#C80000>AL</font>   <font color=#008000>; only taking lsbs </font>
+        <font color=#0000FF>RET</font> 
+     
+    DIVISION:  
+        <font color=#008000>; div by 0 </font>
+        <font color=#0000FF>XOR</font> <font color=#C80000>AX</font>, <font color=#C80000>AX</font>  <font color=#008000>; clear garbage </font>
+        <font color=#0000FF>CMP</font> <font color=#C80000>CH</font> , 0 
+        <font color=#0000FF>JE</font> ERROR         
+         
+        <font color=#0000FF>MOV</font> <font color=#C80000>AL</font> , <font color=#C80000>CL</font>  <font color=#008000>; ax = ah:al </font>
+        <font color=#0000FF>DIV</font> <font color=#C80000>CH</font>     <font color=#008000>; res = ah  </font>
+        <font color=#0000FF>MOV</font> <font color=#C80000>CL</font> , <font color=#C80000>AL</font> 
+        <font color=#0000FF>RET</font>             
+         
+    ERROR: 
+        <font color=#008000>; show prompt  for oper-1 </font>
+        <font color=#0000FF>LEA</font> <font color=#C80000>DX</font> , div0  
+        <font color=#0000FF>MOV</font> <font color=#C80000>AH</font> , 09h 
+        <font color=#0000FF>INT</font> 21h  
+        <font color=#008000>; placeholder result </font>
+        <font color=#0000FF>MOV</font> <font color=#C80000>CL</font> , <font color=#800080>'('</font> <font color=#008000>; ( + 30h = X </font>
+        <font color=#0000FF>RET</font>               
+         
+CALCULATOR ENDP 
+ 
+<font color=#000064>END</font> MAIN 
+    
+</font></pre>
+<center> <font color=#C0C0C0>;</font> <a href="http://www.emu8086.com" target="_blank"><font face=verdana size=1 color=#000000> - asm2html - </font></a> </center>
+<!-- emu8086 version 4.08    -->
+<!-- STOP AUTOMATIC ASM TO HTML EXPORT -->
+
+
+
+
+ 
+ 
+<!-- *** -->
+ 
+ 
+</body>
+</html>

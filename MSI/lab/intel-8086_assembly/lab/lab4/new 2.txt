@@ -1,0 +1,260 @@
+; int 21h --> softwae intrupt --> stop the program execution
+; and check the ah register 
+; ah inrupt :
+    ; 1  -> input store on al
+    ; 2  -> outoput from bl
+    ; baki khud dhiako
+    
+    
+ ; --------------------- 
+   ;how to take string input // we have to specify buffer for the string
+  ;  .data 
+;    buffer db  // a variable 
+;    .code 
+;    mov ah , 10 
+;    lea ,dx ,buffer
+;    int 21h
+     
+; 1
+;MOV AL , 00000000b;  number
+;MOV CX , 7 ; counter 
+;MOV DL , 1 ; fordecodiing number
+;
+;AND DL , AL  ; msb is one or not 
+;ADD BL , DL ; bx -> no of count 
+;
+;;again:
+;MOV DL, 1 
+;ROL AL , 1 ; rotate left al 
+;AND DL , AL 
+;ADD BL , DL 
+;LOOP again
+               
+;
+;MOV CL, 10110101B   
+;XOR DH, DH          ; 1’s count 
+;MOV AL, CL          ; Copy byte to AL
+;MOV BL, 8           ; loop counter , no of bits
+;
+;LOOP_START:
+;    AND AL, 1       ; Check LSB
+;    ADD DH, AL      
+;    SHR CL, 1       ; Shift right original byte for next bit
+;    MOV AL, CL      ; Move shifted value to AL again
+;    DEC BL          ; if zero flag is not zero jumb
+;    JNZ LOOP_START  ; Repeat until all bits checked
+;;
+;
+
+
+ 
+;; 2
+;     MOV AH , 23
+;     MOV BL , AH
+;     AND BL , 1 
+
+
+ ;
+;; 3
+;
+;
+
+;MOV AL , 3
+;MOV AH , 3
+;MOV BL , 3
+;MOV BH , 3
+;CALL addavg  
+;XOR AH , AH
+;RET
+;addavg:
+;ADD AL , AH
+;ADD AL , BL
+;ADD AL , BH  ; al = sum
+;SHR AL , 2   ; al = avg
+;RET          
+
+
+
+
+;
+;; even odd enhance
+;
+;ORG 100h ; orignate 
+;
+;.data
+;    titel DB  6 , 6 , "even odd check",0Dh,0Ah, '$'
+;    prompt DB "enter number to check:", '$'
+;    even DB 0Dh,0Ah ,"even", '$'   
+;    odd DB 0Dh,0Ah , "odd" , '$' 
+;    cont DB "continoue" , 
+;.code
+;    MOV AX , @data  ; initializing datasegment
+;    MOV DX , AX 
+;    
+;    ; load effective address
+;    LEA DX , titel 
+;    MOV AH , 9
+;    INT 21h ; intrupt                                                                                                                                                 
+;main:    
+;    LEA DX , prompt 
+;    MOV AH , 9 
+;    INT 21h
+;    
+;    MOV AH, 1      ; function 1 = read character
+;    INT 21h        ; AL = ASCII of key pressed
+;    ; now AL contains ASCII of input char
+;
+;    SUB AL, 30h    ; convert ASCII digit ('0'-'9') to number
+;                   ; e.g., '5' (35h) ? 05h    
+;        
+;    AND AL , 1  
+;    JZ is_even
+;    JNZ is_odd
+;    RET
+;    
+;    is_even: 
+;        LEA DX , even 
+;        MOV AH , 9 
+;        INT 21h  
+;        RET
+;    is_odd:  
+;        LEA DX , odd 
+;        MOV AH , 9 
+;        INT 21h  
+;;                  
+;;                  
+;                  
+;                  
+;                                                                                                                                                           
+;                  -------------------
+;          ;        
+;;    
+;; even odd enhance
+;
+;ORG 100h ; orignate 
+;
+;.data
+;    titel DB  6 , 6 , "even odd check",0Dh,0Ah, '$'
+;    prompt DB "enter number to check:", '$'
+;    even DB 0Dh,0Ah ,"even", '$'   
+;    odd DB 0Dh,0Ah , "odd" , '$' 
+;    cont DB "continoue" , 
+;.code
+;    MOV AX , @data  ; initializing datasegment
+;    MOV DS , AX 
+;    
+;    ; load effective address
+;    LEA DX , titel 
+;    MOV AH , 9
+;    INT 21h ; intrupt
+;main:    
+;    LEA DX , prompt 
+;    MOV AH , 9 
+;    INT 21h
+;    
+;    MOV AH, 1      ; function 1 = read character
+;    INT 21h        ; AL = ASCII of key pressed
+;    ; now AL contains ASCII of input char
+;
+;    ;SUB AL, 30h    ; convert ASCII digit ('0'-'9') to number
+;                   ; e.g., '5' (35h) ? 05h    
+;        
+;    AND AL , 1  
+;    JZ is_even
+;    JMP is_odd
+;    RET
+;    
+;    is_even: 
+;        LEA DX , even 
+;        MOV AH , 9 
+;        INT 21h  
+;        RET
+;    is_odd:  
+;        LEA DX , odd 
+;        MOV AH , 9 
+;        INT 21h  
+;                  
+;                  
+;                  
+;                          
+
+            
+ ;
+;
+;ORG 100h
+;
+;.data
+;    titel DB 6, 6, "Even Odd Check", 0Dh, 0Ah, '$'
+;    prompt DB "Enter number to check: ", '$'
+;    even DB 0Dh, 0Ah, "Even", '$'
+;    odd DB 0Dh, 0Ah, "Odd", '$'
+;    cont DB 0Dh, 0Ah, "Continue? (y/n): ", '$'
+;
+;.code
+;    MOV AX, @data       ; initialize data segment
+;    MOV DS, AX          ; corrected from mov dx, ax
+;
+;    ; display title
+;    LEA DX, titel
+;    MOV AH, 9
+;    INT 21h
+;
+;main:
+;    ; display prompt
+;    LEA DX, prompt
+;    MOV AH, 9
+;    INT 21h
+;
+;    ; read input character
+;    MOV AH, 1
+;    INT 21h
+;    SUB AL, 30h         ; convert ASCII to number
+;
+;    ; check even/odd
+;    AND AL, 1
+;    JZ is_even
+;    JNZ is_odd
+;
+;is_even:
+;    LEA DX, even
+;    MOV AH, 9
+;    INT 21h
+;    JMP ask_continue
+;
+;is_odd:
+;    LEA DX, odd
+;    MOV AH, 9
+;    INT 21h
+;    JMP ask_continue
+;
+;ask_continue:
+;    ; display continue prompt
+;    LEA DX, cont
+;    MOV AH, 9
+;    INT 21h
+;
+;    ; read y/n input
+;    MOV AH, 1
+;    INT 21h
+;
+;    ; check if y or Y
+;    CMP AL, 'y'
+;    JE main
+;    CMP AL, 'Y'
+;    JE main
+;
+;    ; check if n or N
+;    CMP AL, 'n'
+;    JE exit
+;    CMP AL, 'N'
+;    JE exit
+;
+;    ; if neither y/Y nor n/N, ask again
+;    JMP ask_continue
+;
+;exit:
+;    MOV AH, 4Ch         ; exit program
+;    INT 21h 
+
+
+

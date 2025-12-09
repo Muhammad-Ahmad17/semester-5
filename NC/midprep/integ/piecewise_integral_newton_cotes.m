@@ -10,19 +10,19 @@ clear; clc; close all;
 %% Define the piecewise function
 function y = f(x)
     y = zeros(size(x));
-
-    % piece 1: 0 <= x < 30, f(x) = 0
-    piece1 = (x >= 0) & (x < 30);
-    y(piece2) = 0;
-
+    
+    % Region 1: 0 <= x < 30, f(x) = 0
+    mask1 = (x >= 0) & (x < 30);
+    y(mask1) = 0;
+    
     % Region 2: 30 <= x <= 100, f(x) = cubic polynomial
-    piece2 = (x >= 30) & (x <= 100);
-    y(piece2) = -9.1688e-6 * x(piece2).^3 + 2.7961e-3 * x(piece2).^2 - ...
-              0.2848700 * x(piece2) + 9.6778;
-
+    mask2 = (x >= 30) & (x <= 100);
+    y(mask2) = -9.1688e-6 * x(mask2).^3 + 2.7961e-3 * x(mask2).^2 - ...
+              0.2848700 * x(mask2) + 9.6778;
+    
     % Region 3: 100 < x, f(x) = 0
-    piece3 = (x > 100);
-    y(piece3) = 0;
+    mask3 = (x > 100);
+    y(mask3) = 0;
 end
 
 %% Integration parameters
@@ -47,9 +47,9 @@ for N = N_values
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     I_trap = (h/2) * (y_vals(1) + 2*sum(y_vals(2:N)) + y_vals(N+1));
-
+    
     trap_results = [trap_results; N, h, I_trap];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_trap);
 end
@@ -64,16 +64,16 @@ fprintf('========================================\n\n');
 simp13_results = [];
 for N = N_values
     if mod(N, 2) ~= 0, N = N + 1; end  % Ensure N is even
-
+    
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     sum_odd = sum(y_vals(2:2:N));      % y₁, y₃, y₅, ...
     sum_even = sum(y_vals(3:2:N-1));   % y₂, y₄, y₆, ...
-
+    
     I_simp13 = (h/3) * (y_vals(1) + 4*sum_odd + 2*sum_even + y_vals(N+1));
-
+    
     simp13_results = [simp13_results; N, h, I_simp13];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_simp13);
 end
@@ -88,11 +88,11 @@ fprintf('========================================\n\n');
 simp38_results = [];
 for N = N_values
     if mod(N, 3) ~= 0, N = N + (3 - mod(N, 3)); end  % Ensure N divisible by 3
-
+    
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     I_simp38 = (3*h/8) * (y_vals(1) + y_vals(N+1));
     for i = 2:N
         weight_index = mod(i-1, 3);
@@ -103,7 +103,7 @@ for N = N_values
         end
         I_simp38 = I_simp38 + (3*h/8) * weight * y_vals(i);
     end
-
+    
     simp38_results = [simp38_results; N, h, I_simp38];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_simp38);
 end
@@ -118,11 +118,11 @@ fprintf('========================================\n\n');
 boole_results = [];
 for N = N_values
     if mod(N, 4) ~= 0, N = N + (4 - mod(N, 4)); end  % Ensure N divisible by 4
-
+    
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     I_boole = (2*h/45) * (y_vals(1) + y_vals(N+1));
     for i = 2:N
         weight_index = mod(i-1, 4);
@@ -134,7 +134,7 @@ for N = N_values
         end
         I_boole = I_boole + (2*h/45) * weight * y_vals(i);
     end
-
+    
     boole_results = [boole_results; N, h, I_boole];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_boole);
 end
@@ -149,11 +149,11 @@ fprintf('========================================\n\n');
 n5_results = [];
 for N = N_values
     if mod(N, 5) ~= 0, N = N + (5 - mod(N, 5)); end  % Ensure N divisible by 5
-
+    
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     I_n5 = (5*h/288) * (y_vals(1) + y_vals(N+1));
     for i = 2:N
         weight_index = mod(i-1, 5);
@@ -166,7 +166,7 @@ for N = N_values
         end
         I_n5 = I_n5 + (5*h/288) * weight * y_vals(i);
     end
-
+    
     n5_results = [n5_results; N, h, I_n5];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_n5);
 end
@@ -181,11 +181,11 @@ fprintf('========================================\n\n');
 weddle_results = [];
 for N = N_values
     if mod(N, 6) ~= 0, N = N + (6 - mod(N, 6)); end  % Ensure N divisible by 6
-
+    
     h = (b - a) / N;
     x = linspace(a, b, N+1);
     y_vals = f(x);
-
+    
     I_weddle = (h/140) * (y_vals(1) + y_vals(N+1));
     for i = 2:N
         weight_index = mod(i-1, 6);
@@ -199,7 +199,7 @@ for N = N_values
         end
         I_weddle = I_weddle + (h/140) * weight * y_vals(i);
     end
-
+    
     weddle_results = [weddle_results; N, h, I_weddle];
     fprintf('N = %4d,  h = %8.6f,  I = %.10f\n', N, h, I_weddle);
 end
@@ -258,4 +258,3 @@ grid on;
 legend('FontSize', 10);
 
 fprintf('\nGraphs generated and saved as figure.\n');
-

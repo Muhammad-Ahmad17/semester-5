@@ -872,9 +872,10 @@ $$M = \left\lceil \frac{A_s - 7.95}{14.36 \times \Delta f} \right\rceil + 1$$
 $$\Delta f = \frac{\omega_s - \omega_p}{2\pi}$$
 
 **Window selection:**
-| As (dB) | Window | |
+
+| As (dB) | Window | Purpose |
 |---|---|---|
-| ≤21 | Rectangular | Poor passband |
+| ≤21 | Rectangular | Poor passband ripple |
 | 21-53 | Hamming | ✓ Best choice |
 | >53 | Blackman | High attenuation |
 

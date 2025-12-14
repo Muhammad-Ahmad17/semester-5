@@ -452,7 +452,6 @@ SEGMENT_END
 
 .data
 POS     DB 0           ; Motor position 0–3
-STEP    DB 1,2,4,8     ; Stepper motor wave-drive sequence
 
 ; PPI macros
 PPI_PORT_A      EQU 0x30        ; 8255 Port A (Stepper motor)

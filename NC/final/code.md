@@ -7,188 +7,117 @@
 ## 📌 SECTION 1: ROOT FINDING METHODS (15 min)
 
 ### 1.1 Bisection Method
-**Mathematical Formula:**
-$$c = \frac{a + b}{2}$$
-
-**Algorithm Steps:**
-1. Start with interval [a, b] where f(a)·f(b) < 0 (different signs)
-2. Calculate midpoint: $c = \frac{a+b}{2}$
-3. Check f(c):
-   - If f(c) = 0 → c is the root
-   - If f(a)·f(c) < 0 → root in [a, c], set b = c
-   - Else → root in [c, b], set a = c
-4. Repeat until |b - a| < tolerance
-
 ```matlab
 % Bisection Method
 f = @(x) x^2 - 4;  % Example function
 a = 0; b = 3; tol = 0.001;
 
 while (b - a) > tol
-    c = (a + b) / 2;  % Midpoint
+    c = (a + b) / 2;
     if f(c) == 0
         break;
-    elseif f(a) * f(c) < 0  % Root in [a, c]
+    elseif f(a) * f(c) < 0
         b = c;
-    else                     % Root in [c, b]
+    else
         a = c;
     end
 end
 root = (a + b) / 2;
 disp(['Root: ', num2str(root)]);
 ```
-**Key**: Binary search, always converges, log₂(n) iterations
+**Key**: Binary search, always converges, slow
 
 ---
 
 ### 1.2 Newton-Raphson Method
-**Mathematical Formula:**
-$$x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}$$
-
-**Derivation:** Using Taylor series:
-$$f(x) \approx f(x_n) + f'(x_n)(x - x_n) = 0$$
-$$x = x_n - \frac{f(x_n)}{f'(x_n)}$$
-
-**Algorithm:**
-1. Choose initial guess x₀
-2. Calculate: $x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}$
-3. Repeat until convergence
-
 ```matlab
 % Newton-Raphson Method
-f = @(x) x^2 - 4;      % f(x)
-df = @(x) 2*x;         % f'(x) derivative
-x0 = 2; tol = 0.001;   % Initial guess
+f = @(x) x^2 - 4;
+df = @(x) 2*x;
+x0 = 2; tol = 0.001;
 
 while abs(f(x0)) > tol
-    x0 = x0 - f(x0) / df(x0);  % Newton's formula
+    x0 = x0 - f(x0) / df(x0);
 end
 disp(['Root: ', num2str(x0)]);
 ```
-**Key**: Uses derivative, quadratic convergence, needs f'(x)
+**Key**: Uses derivative, fast convergence, needs f'(x)
 
 ---
 
 ### 1.3 Secant Method
-**Mathematical Formula:**
-$$x_{n+1} = x_n - f(x_n) \cdot \frac{x_n - x_{n-1}}{f(x_n) - f(x_{n-1})}$$
-
-**Key Idea:** Approximates derivative using finite difference:
-$$f'(x_n) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}$$
-
-**Algorithm:**
-1. Choose two initial points x₀ and x₁
-2. Calculate: $x_{n+1} = x_n - f(x_n) \cdot \frac{x_n - x_{n-1}}{f(x_n) - f(x_{n-1})}$
-3. Shift: x₀ = x₁, x₁ = x₂, repeat
-
 ```matlab
 % Secant Method
 f = @(x) x^2 - 4;
-x0 = 1; x1 = 3; tol = 0.001;  % Two initial points
+x0 = 1; x1 = 3; tol = 0.001;
 
 while abs(x1 - x0) > tol
     x2 = x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0));
-    x0 = x1;  % Shift values
+    x0 = x1;
     x1 = x2;
 end
 disp(['Root: ', num2str(x1)]);
 ```
-**Key**: No derivative needed, faster than bisection
+**Key**: No derivative needed, uses two initial points
 
 ---
 
 ### 1.4 Fixed Point Iteration
-**Mathematical Formula:**
-$$x_{n+1} = g(x_n)$$
-
-**Convergence Condition:** Method converges if $|g'(x)| < 1$ near root
-
-**Algorithm Steps:**
-1. Rearrange f(x) = 0 to form x = g(x)
-2. Choose initial guess x₀
-3. Calculate: $x_{n+1} = g(x_n)$
-4. Repeat until $|x_{n+1} - x_n| < \text{tolerance}$
-
 ```matlab
 % Fixed Point Iteration
-g = @(x) sqrt(4 - x^2);  % Rearrange: f(x)=0 becomes x=g(x)
-x0 = 1; tol = 0.001;     % Initial guess
+g = @(x) sqrt(4 - x^2);  % Rearrange f(x)=0 to x=g(x)
+x0 = 1; tol = 0.001;
 
 while abs(g(x0) - x0) > tol
-    x0 = g(x0);  % Apply iteration formula
+    x0 = g(x0);
 end
 disp(['Root: ', num2str(x0)]);
 ```
-**Key**: Check |g'(x)| < 1 for convergence; rearrangement is crucial
+**Key**: Rearrange f(x)=0 to x=g(x)
 
 ---
 
 ## 📌 SECTION 2: LINEAR SYSTEMS - DIRECT METHODS (20 min)
 
 ### 2.1 Gauss Elimination
-**Mathematical Steps:**
-
-**Step 1: Forward Elimination** - Convert to upper triangular form
-$$m_{ij} = \frac{a_{ij}}{a_{jj}}, \quad a'_{ij} = a_{ij} - m_{ij} \cdot a_{jj}$$
-
-**Step 2: Back Substitution** - Solve from bottom to top
-$$x_i = \frac{b_i - \sum_{j=i+1}^{n} a_{ij} x_j}{a_{ii}}$$
-
-**Example System:**
-$$\begin{bmatrix} 2 & 1 & -1 \\ -3 & -1 & 2 \\ -2 & 1 & 2 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 8 \\ -11 \\ -3 \end{bmatrix}$$
-
 ```matlab
 % Gauss Elimination
 A = [2 1 -1; -3 -1 2; -2 1 2];
 b = [8; -11; -3];
 n = length(b);
 
-% STEP 1: Forward Elimination (to upper triangular)
+% Forward elimination
 for k = 1:n-1
     for i = k+1:n
-        factor = A(i,k) / A(k,k);  % Multiplier
-        A(i,k:n) = A(i,k:n) - factor * A(k,k:n);  % Row operation
+        factor = A(i,k) / A(k,k);
+        A(i,k:n) = A(i,k:n) - factor * A(k,k:n);
         b(i) = b(i) - factor * b(k);
     end
 end
 
-% STEP 2: Back Substitution (solve from xₙ to x₁)
+% Back substitution
 x = zeros(n,1);
 for i = n:-1:1
     x(i) = (b(i) - A(i,i+1:n) * x(i+1:n)) / A(i,i);
 end
 disp('Solution:'); disp(x);
 ```
-**Key**: Two-phase method - eliminate to triangle, then substitute
+**Key**: Convert to triangular form, then back substitute
 
 ---
 
 ### 2.2 Doolittle Method (LU Decomposition)
-**Mathematical Formula:**
-
-Decompose A = LU where L has 1's on diagonal and U is upper triangular:
-
-$$u_{ij} = a_{ij} - \sum_{k=1}^{i-1} l_{ik} \cdot u_{kj}, \quad l_{ij} = \frac{a_{ij} - \sum_{k=1}^{j-1} l_{ik} \cdot u_{kj}}{u_{jj}}$$
-
-**Algorithm Steps:**
-1. For each column i (from 1 to n):
-   - Calculate U row: $u_{ij} = a_{ij} - \sum_{k=1}^{i-1} l_{ik} \cdot u_{kj}$ for j ≥ i
-   - Calculate L column: $l_{ji} = \frac{a_{ji} - \sum_{k=1}^{i-1} l_{jk} \cdot u_{ki}}{u_{ii}}$ for j > i
-2. Solve Ly = b, then Ux = y
-
 ```matlab
 % Doolittle Method (LU Decomposition)
 A = [2 1 -1; -3 -1 2; -2 1 2];
 n = size(A, 1);
-L = eye(n);    % L has 1's on diagonal
-U = zeros(n);  % U is upper triangular
+L = eye(n);
+U = zeros(n);
 
 for i = 1:n
-    % Calculate U row i
     for j = i:n
-        U(i,j) = A(i,j) - L(i,1:i-1) * U(1:i-1,j);  % Sum of products
+        U(i,j) = A(i,j) - L(i,1:i-1) * U(1:i-1,j);
     end
-    % Calculate L column i
     for k = i+1:n
         L(k,i) = (A(k,i) - L(k,1:i-1) * U(1:i-1,i)) / U(i,i);
     end
@@ -197,7 +126,7 @@ end
 disp('L:'); disp(L);
 disp('U:'); disp(U);
 ```
-**Key**: A = L·U where L has unit diagonal, faster for multiple RHS
+**Key**: A = L*U, L is lower triangular, U is upper triangular
 
 ---
 
@@ -417,81 +346,32 @@ disp(['Interpolated value: ', num2str(y)]);
 ## 📌 SECTION 6: NUMERICAL INTEGRATION (20 min)
 
 ### 6.1 Trapezoidal Rule
-**Mathematical Formula:**
-$$I \approx \frac{h}{2}(f_0 + 2f_1 + 2f_2 + ... + 2f_{n-1} + f_n)$$
-where $h = \frac{b-a}{n}$
-
-**Geometric Idea:** Sum of n trapezoids under the curve
-
-**Step-by-Step:**
-1. Divide [a,b] into n equal intervals: $h = \frac{b-a}{n}$
-2. Calculate function values: $f_i = f(x_i)$ at $x_i = a + ih$
-3. Apply formula: $I = \frac{h}{2}(f_0 + 2f_1 + ... + 2f_{n-1} + f_n)$
-
-**Example:** Integrate f(x) = x² from 0 to 2, n=4
-```
-h = 0.5
-x: [0    0.5   1.0   1.5   2.0]
-f: [0  0.25   1.0  2.25   4.0]
-I = 0.5/2 * (0 + 2(0.25) + 2(1) + 2(2.25) + 4)
-  = 0.25 * 11 = 2.75
-```
-
 ```matlab
 % Trapezoidal Rule
-f = @(x) x^2;      % Function to integrate
-a = 0; b = 2;      % Limits
-n = 4;             % Number of intervals
-h = (b - a) / n;   % Step size
-
-x = a:h:b;         % Grid points
-y = f(x);          % Function values
-
+f = @(x) x^2;
+a = 0; b = 2; n = 4;
+h = (b - a) / n;
+x = a:h:b;
+y = f(x);
 I = (h/2) * (y(1) + 2*sum(y(2:end-1)) + y(end));
 disp(['Integral: ', num2str(I)]);
 ```
-**Key**: 2-point rule, O(h²) error, simple and fast
+**Formula**: I = (h/2)[f₀ + 2f₁ + 2f₂ + ... + fₙ]
 
 ---
 
 ### 6.2 Simpson's 1/3 Rule
-**Mathematical Formula:**
-$$I \approx \frac{h}{3}(f_0 + 4f_1 + 2f_2 + 4f_3 + ... + 4f_{n-1} + f_n)$$
-where $h = \frac{b-a}{n}$ and **n must be even**
-
-**Coefficient Pattern:**
-- First & last: coefficient 1
-- Odd indices (1,3,5,...): coefficient 4
-- Even indices (2,4,6,...): coefficient 2
-
-**Algorithm:**
-1. Divide [a,b] into **even** n intervals: $h = \frac{b-a}{n}$
-2. Calculate function values at all points
-3. Apply: $I = \frac{h}{3}(f_0 + 4f_1 + 2f_2 + 4f_3 + ...)$
-
-**Example:** f(x) = x² from 0 to 2, n=4
-```
-h = 0.5
-x: [0    0.5   1.0   1.5   2.0]
-f: [0  0.25   1.0  2.25   4.0]
-I = 0.5/3 * (0 + 4(0.25) + 2(1) + 4(2.25) + 4)
-  = (0.5/3) * 16 ≈ 2.667
-```
-
 ```matlab
 % Simpson's 1/3 Rule
 f = @(x) x^2;
 a = 0; b = 2; n = 4;  % Must be even
 h = (b - a) / n;
-
 x = a:h:b;
 y = f(x);
-
-% Odd indices: 2:2:end-1, Even indices: 3:2:end-2
 I = (h/3) * (y(1) + 4*sum(y(2:2:end-1)) + 2*sum(y(3:2:end-2)) + y(end));
 disp(['Integral: ', num2str(I)]);
 ```
-**Key**: 3-point rule, O(h⁴) error, **most accurate & commonly used**
+**Formula**: I = (h/3)[f₀ + 4f₁ + 2f₂ + 4f₃ + ... + fₙ]
 
 ---
 
@@ -557,34 +437,11 @@ disp(['Integral: ', num2str(I)]);
 ## 📌 SECTION 7: DIFFERENTIAL EQUATIONS (15 min)
 
 ### 7.1 Euler Method
-**Mathematical Formula:**
-$$y_{i+1} = y_i + h \cdot f(t_i, y_i)$$
-
-**Geometric Idea:** Uses tangent line (slope) at $(t_i, y_i)$
-
-**Algorithm:**
-1. Start with initial condition: $y(t_0) = y_0$
-2. For each step i:
-   - Calculate slope: $k = f(t_i, y_i)$
-   - Update: $y_{i+1} = y_i + h \cdot k$
-   - Next time: $t_{i+1} = t_i + h$
-3. Repeat until reaching $t_{end}$
-
-**Example:** Solve dy/dt = t + y, y(0) = 1 on [0,1] with h=0.1
-```
-t₀=0, y₀=1
-t₁=0.1: y₁ = 1 + 0.1(0+1) = 1.1
-t₂=0.2: y₂ = 1.1 + 0.1(0.1+1.1) = 1.22
-...
-```
-
 ```matlab
 % Euler Method
-f = @(t, y) t + y;  % dy/dt
-t0 = 0; y0 = 1;     % Initial condition
-h = 0.1;            % Step size
-t_end = 1;
-
+% dy/dt = f(t, y)
+f = @(t, y) t + y;  % Example: dy/dt = t + y
+t0 = 0; y0 = 1; h = 0.1; t_end = 1;
 t = t0:h:t_end;
 n = length(t);
 y = zeros(1, n);
@@ -593,74 +450,38 @@ y(1) = y0;
 for i = 2:n
     y(i) = y(i-1) + h * f(t(i-1), y(i-1));
 end
-
 plot(t, y, 'b-o'); xlabel('t'); ylabel('y');
 ```
-**Key**: O(h) error, simplest ODE solver, **least accurate**
+**Formula**: yᵢ₊₁ = yᵢ + h·f(tᵢ, yᵢ)
 
 ---
 
 ### 7.2 Modified Euler (Heun's Method)
-**Mathematical Formula:**
-$$k_1 = f(t_i, y_i)$$
-$$k_2 = f(t_{i+1}, y_i + h \cdot k_1)$$
-$$y_{i+1} = y_i + \frac{h}{2}(k_1 + k_2)$$
-
-**Key Idea:** Average of slopes at start and predicted endpoint
-
-**Algorithm:**
-1. Calculate slope at current point: $k_1 = f(t_i, y_i)$
-2. Predict next point: $\tilde{y}_{i+1} = y_i + h \cdot k_1$
-3. Calculate slope at predicted point: $k_2 = f(t_{i+1}, \tilde{y}_{i+1})$
-4. Update using average: $y_{i+1} = y_i + \frac{h}{2}(k_1 + k_2)$
-
 ```matlab
 % Modified Euler (Heun's Method)
 f = @(t, y) t + y;
-t0 = 0; y0 = 1;
-h = 0.1; t_end = 1;
-
+t0 = 0; y0 = 1; h = 0.1; t_end = 1;
 t = t0:h:t_end;
 n = length(t);
 y = zeros(1, n);
 y(1) = y0;
 
 for i = 2:n
-    k1 = f(t(i-1), y(i-1));              % Slope at current
-    k2 = f(t(i), y(i-1) + h*k1);         % Slope at predicted next
-    y(i) = y(i-1) + (h/2) * (k1 + k2);   % Average of slopes
+    k1 = f(t(i-1), y(i-1));
+    k2 = f(t(i), y(i-1) + h*k1);
+    y(i) = y(i-1) + (h/2) * (k1 + k2);
 end
-
 plot(t, y, 'b-o'); xlabel('t'); ylabel('y');
 ```
-**Key**: O(h²) error, 2-stage RK, **faster than Euler**
+**Formula**: yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)
 
 ---
 
 ### 7.3 Runge-Kutta 4th Order (RK4)
-**Mathematical Formula:**
-$$k_1 = f(t_i, y_i)$$
-$$k_2 = f(t_i + \frac{h}{2}, y_i + \frac{h}{2}k_1)$$
-$$k_3 = f(t_i + \frac{h}{2}, y_i + \frac{h}{2}k_2)$$
-$$k_4 = f(t_i + h, y_i + h \cdot k_3)$$
-$$y_{i+1} = y_i + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$
-
-**Weighted Slopes:** Uses 4 slopes with weights 1:2:2:1
-- k₁: slope at start
-- k₂: slope at midpoint (using k₁)
-- k₃: slope at midpoint (using k₂)
-- k₄: slope at end (using k₃)
-
-**Algorithm:**
-1. Calculate 4 slopes at different points
-2. Take weighted average: $y_{i+1} = y_i + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)$
-
 ```matlab
-% Runge-Kutta 4th Order (RK4) - Most accurate
+% Runge-Kutta 4th Order
 f = @(t, y) t + y;
-t0 = 0; y0 = 1;
-h = 0.1; t_end = 1;
-
+t0 = 0; y0 = 1; h = 0.1; t_end = 1;
 t = t0:h:t_end;
 n = length(t);
 y = zeros(1, n);
@@ -671,13 +492,11 @@ for i = 2:n
     k2 = f(t(i-1) + h/2, y(i-1) + h*k1/2);
     k3 = f(t(i-1) + h/2, y(i-1) + h*k2/2);
     k4 = f(t(i), y(i-1) + h*k3);
-    
     y(i) = y(i-1) + (h/6) * (k1 + 2*k2 + 2*k3 + k4);
 end
-
 plot(t, y, 'b-o'); xlabel('t'); ylabel('y');
 ```
-**Key**: O(h⁴) error, **most accurate**, 4-stage RK, **widely used**
+**Formula**: yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)
 
 ---
 
@@ -709,18 +528,3 @@ plot(t, y, 'b-o'); xlabel('t'); ylabel('y');
 - [ ] RK4: 4-stage, most accurate
 
 ---
-
-## ⏰ Last-Minute Tips (During Exam)
-
-1. **Copy & Paste Ready**: All codes are ready to copy directly
-2. **Modify as needed**: Change f, a, b, n values based on problem
-3. **Common variables**:
-   - `f = @(x) ...` for function definition
-   - `h = (b-a)/n` for step size
-   - `tol = 0.001` for tolerance
-4. **Output**: Use `disp()` for results
-5. **Plotting**: Use `plot()` for visualization
-
----
-
-## 💪 Good Luck! You've Got This!

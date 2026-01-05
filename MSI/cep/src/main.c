@@ -18,7 +18,7 @@ Address = 0x27 or 0x3F
 SERVO
 -> 5V
 -> GND
-PD14  -> TIM4_CH1 and PD13(not used)
+Pb0  -> TIM3_CH3
 */
 
 #include "main.h"
@@ -29,7 +29,9 @@ PD14  -> TIM4_CH1 and PD13(not used)
 
 /* -------------------- HANDLES -------------------- */
 SPI_HandleTypeDef hspi1;
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 I2C_HandleTypeDef hi2c1;
 
 /* -------------------- ACC REGISTERS -------------------- */
@@ -55,13 +57,22 @@ typedef struct {
     uint32_t last_motion_time;
 } MotionData;
 
+typedef struct {
+    uint16_t duration_ms;      /* Auto-stop duration in milliseconds */
+    uint32_t start_time;       /* When fan was started */
+    uint8_t running;           /* Fan is currently running */
+} FanTimer;
+
 MotionData motion = {0, 0, 0, 0, 0};
+FanTimer fan_timer = {0, 0, 0};
 
 /* -------------------- FUNCTION PROTOTYPES -------------------- */
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_TIM4_Init(void);
 static void MX_I2C1_Init(void);
 
 /* Accelerometer */
@@ -85,6 +96,13 @@ void lcd_set_cursor(uint8_t row, uint8_t col);
 void servo_set_angle(uint8_t angle);
 void servo_neutral(void);
 
+/* Fan Control */
+void fan_start(void);
+void fan_set_speed(uint16_t duty_cycle);
+void fan_stop(void);
+void fan_set_duration(uint16_t duration_ms, uint16_t speed);
+void fan_update_timer(void);
+
 /* Motion Detection */
 void update_lcd_display(void);
 uint8_t is_motion_detected(void);
@@ -99,7 +117,9 @@ int main(void)
     /* Initialize all peripherals */
     MX_GPIO_Init();
     MX_SPI1_Init();
+    MX_TIM2_Init();
     MX_TIM3_Init();
+    MX_TIM4_Init();
     MX_I2C1_Init();
 
     /* Initialize devices */
@@ -166,9 +186,9 @@ int main(void)
 
                 /* ---- SERVO RESPONSE (Only motor, no buzzer) ---- */
                 servo_set_angle(90);
-                HAL_Delay(300);
+                HAL_Delay(1000);
                 servo_set_angle(0);
-                HAL_Delay(300);
+                HAL_Delay(1000);
                 servo_neutral();  // Back to 90°
             }
         }
@@ -177,6 +197,62 @@ int main(void)
     }
 }
 
+/* ===================== FAN CONTROL ===================== */
+
+/**
+ * @brief Start fan PWM on PD1 (TIM4_CH4)
+ */
+void fan_start(void)
+{
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
+}
+
+/**
+ * @brief Set fan speed using duty cycle (0-20000)
+ * @param duty_cycle: 0=off, 10000=50%, 20000=full
+ */
+void fan_set_speed(uint16_t duty_cycle)
+{
+    if (duty_cycle > 20000) duty_cycle = 20000;
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, duty_cycle);
+}
+
+/**
+ * @brief Stop fan
+ */
+void fan_stop(void)
+{
+    HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_4);
+    fan_timer.running = 0;
+}
+
+/**
+ * @brief Start fan with auto-stop timer
+ * @param duration_ms: milliseconds to run (0 = no auto-stop)
+ * @param speed: duty cycle 0-20000
+ */
+void fan_set_duration(uint16_t duration_ms, uint16_t speed)
+{
+    fan_start();
+    fan_set_speed(speed);
+    fan_timer.duration_ms = duration_ms;
+    fan_timer.start_time = HAL_GetTick();
+    fan_timer.running = 1;
+}
+
+/**
+ * @brief Update fan timer - MUST call in main loop
+ */
+void fan_update_timer(void)
+{
+    if (!fan_timer.running) return;
+    
+    uint32_t elapsed = HAL_GetTick() - fan_timer.start_time;
+    
+    if (elapsed >= fan_timer.duration_ms) {
+        fan_stop();
+    }
+}
 
 /* ===================== ACCELEROMETER ===================== */
 void ACC_Init(void)
@@ -206,19 +282,25 @@ int8_t ACC_ReadAxis(uint8_t reg)
 }
 
 
-/* ===================== BUZZER ===================== */
+/**
+ * @brief Buzzer play tone on PA15 (TIM2_CH1)
+ * @param freq: Frequency in Hz
+ */
 void buzzer_play(uint32_t freq)
 {
     uint32_t timer_clock = 1000000;
     uint32_t period = (timer_clock / freq) - 1;
 
-    __HAL_TIM_SET_AUTORELOAD(&htim3, period);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, period / 2);
+    __HAL_TIM_SET_AUTORELOAD(&htim2, period);
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, period / 2);
 }
 
+/**
+ * @brief Stop buzzer
+ */
 void buzzer_stop(void)
 {
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 0);
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
 }
 
 
@@ -295,11 +377,6 @@ void servo_set_angle(uint8_t angle)
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, pulse);
 }
 
-void servo_neutral(void)
-{
-    servo_set_angle(90);
-}
-
 
 /* ===================== PERIPHERAL INIT ===================== */
 static void MX_GPIO_Init(void)
@@ -307,16 +384,33 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    /* BUZZER/SERVO PB0 - TIM3_CH3 (SHARED) */
+    /* BUZZER PA15 - TIM2_CH1 */
+    GPIO_InitStruct.Pin = GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* SERVO PB0 - TIM3_CH3 */
     GPIO_InitStruct.Pin = GPIO_PIN_0;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* FAN PD1 - TIM4_CH4 */
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /* ACCEL CS PE3 */
     GPIO_InitStruct.Pin = GPIO_PIN_3;
@@ -362,6 +456,46 @@ static void MX_SPI1_Init(void)
     HAL_SPI_Init(&hspi1);
 }
 
+/**
+ * @brief TIM2 Initialization (Buzzer PWM)
+ * 
+ * TIMER CONFIGURATION:
+ * ====================
+ * Clock: APB1 = 84 MHz
+ * Prescaler: 84 - 1 = 83 → Timer Clock = 1 MHz
+ * Period: Dynamic (set by buzzer_play function)
+ * Channel 1: Buzzer PWM on PA15
+ * 
+ * FREQUENCY CALCULATION:
+ * Frequency = 1,000,000 / (Period + 1)
+ * Examples:
+ * - Period = 3030: 330 Hz (NOTE_E4)
+ * - Period = 3787: 264 Hz (NOTE_C4)
+ * - Period = 4545: 220 Hz (NOTE_A3)
+ */
+static void MX_TIM2_Init(void)
+{
+    __HAL_RCC_TIM2_CLK_ENABLE();
+
+    TIM_OC_InitTypeDef sConfigOC = {0};
+
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = 84 - 1;           /* Timer clock = 84MHz / 84 = 1 MHz */
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 1000 - 1;            /* Default period */
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    HAL_TIM_PWM_Init(&htim2);
+
+    /* Channel 1: Buzzer */
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 0;                     /* Start silent */
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
+
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+}
+
 static void MX_TIM3_Init(void)
 {
     __HAL_RCC_TIM3_CLK_ENABLE();
@@ -382,6 +516,46 @@ static void MX_TIM3_Init(void)
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
 
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+}
+
+/**
+ * @brief TIM4 Initialization (Fan PWM)
+ * 
+ * TIMER CONFIGURATION:
+ * ====================
+ * Clock: APB1 = 84 MHz
+ * Prescaler: 84 - 1 = 83 → Timer Clock = 1 MHz
+ * Period: 20000 - 1 = 19999 → Frequency = 50 Hz
+ * Channel 4: Fan PWM on PD1
+ * 
+ * DUTY CYCLE (0-20000):
+ * - 0:      0% (OFF)
+ * - 5000:   25%
+ * - 10000:  50%
+ * - 15000:  75%
+ * - 20000:  100% (FULL)
+ */
+static void MX_TIM4_Init(void)
+{
+    __HAL_RCC_TIM4_CLK_ENABLE();
+
+    TIM_OC_InitTypeDef sConfigOC = {0};
+
+    htim4.Instance = TIM4;
+    htim4.Init.Prescaler = 84 - 1;           /* Timer clock = 84MHz / 84 = 1 MHz */
+    htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim4.Init.Period = 20000 - 1;           /* 50 Hz frequency */
+    htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    HAL_TIM_PWM_Init(&htim4);
+
+    /* Channel 4: Fan */
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 0;                     /* Start at 0% duty cycle */
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4);
+
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 }
 
 static void MX_I2C1_Init(void)
